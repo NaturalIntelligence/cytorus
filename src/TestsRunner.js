@@ -10,9 +10,14 @@ let currentTest = {};
 function runScenarios(rule){
     for(let i=0; i < rule.scenarios.length; i++){
         const scenario = rule.scenarios[i];
-        if(scenario.skip) continue; //Skipped scenarios can be reported
+        if(scenario.skip) {
+            //Update pending test count
+            xit(scenario.statement, ()=> {}); 
+            //it.skip(scenario.statement, ()=> {}); 
+            continue; 
+        }
         //console.log("Running Scenario", scenario.statement);
-        scenario.status = "P";
+        scenario.status = "Pass";
         currentTest = scenario;
         window.Cypress.Promise.each([
             _E.beforeScenario,
@@ -28,7 +33,7 @@ function runSteps(scenario){
     //console.log("Running scenario", scenario.statement)
     it(scenario.statement, ()=>{
         for(let i=0; i < scenario.steps.length; i++){
-            if(currentTest.status === "F") break; //don't execute rest steps;
+            if(currentTest.status === "Fail") break; //don't execute rest steps;
             const step = scenario.steps[i];
             cy
                 .then(() => _E.beforeStep(step))
