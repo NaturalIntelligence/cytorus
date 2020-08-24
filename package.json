@@ -1,0 +1,21 @@
+{
+  "name": "cypress-cucumon-runner",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/cypress-preprocessor.js",
+  "scripts": {
+    "test": "jasmine test/*test.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@cypress/browserify-preprocessor": "^3.0.1",
+    "bexp": "^1.0.2",
+    "cucumon": "^1.1.1",
+    "through": "^2.3.8"
+  },
+  "devDependencies": {
+    "jasmine": "^3.6.1"
+  }
+}
