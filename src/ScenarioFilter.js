@@ -42,13 +42,16 @@ function filterByPosition(featureObj, arr, include){
 }
 
 function filterByTagExpression(featureObj, tagExpression){
-    const tagExpResolver = new BexpParser("("+tagExpression+") but @!");
+    
+    const tagExpResolver = new BexpParser("("+tagExpression+") but not @skip");
 
     for(let rules_i=0; rules_i < featureObj.feature.rules.length; rules_i++){
         const rule = featureObj.feature.rules[rules_i];
         for(let scenario_i=0; scenario_i < rule.scenarios.length; scenario_i++){
             const scenario = rule.scenarios[scenario_i];
-            if(!tagExpResolver.test(featureObj.feature.tags.concat(scenario.tags))){
+            const shouldRun = tagExpResolver.test(featureObj.feature.tags.concat(scenario.tags));
+            //Cypress.log("" + featureObj.feature.tags.concat(scenario.tags));
+            if(!shouldRun){
                 scenario.skip= true;
             }
         }
@@ -58,7 +61,7 @@ function filterByTagExpression(featureObj, tagExpression){
 }
 
 /**
- * Filter either all scenarios & exclude `@!` tagged scenarios, or scenarios with `@only`
+ * Filter either all scenarios & exclude `@skip` tagged scenarios, or scenarios with `@only`
  * @param {object} featureObj 
  */
 function filterForPriorityTags(featureObj){
@@ -68,7 +71,7 @@ function filterForPriorityTags(featureObj){
         for(let scenario_i=0; scenario_i < rule.scenarios.length; scenario_i++){
             const scenario = rule.scenarios[scenario_i];
             const tags = featureObj.feature.tags.concat(scenario.tags);
-            if(tags.indexOf("@!") !== -1){
+            if(tags.indexOf("@skip") !== -1){
                 scenario.skip = true;
             }else if(tags.indexOf("@only") !== -1){
                 hasOnlyTag = true;

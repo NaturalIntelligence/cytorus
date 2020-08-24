@@ -1,4 +1,4 @@
-@tag
+@tag2
 Feature: Search on Google page 2
   
   Scenario: simple 2
