@@ -11,8 +11,12 @@
 // This function is called when a project is opened or re-opened (e.g. due to
 // the project's config changing)
 
-const cucumon = require('cypress-cucumon-runner');
+const CucumonRunner = require('cypress-cucumon-runner');
 module.exports = (on, config) => {
-  on('file:preprocessor', cucumon())
+  const cucumonRunner = new CucumonRunner(config);
+
+  //cucumonRunner.reportTo(reportHandler);
+
+  on('file:preprocessor', cucumonRunner.filePreProcessor());
 }
 

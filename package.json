@@ -2,7 +2,7 @@
   "name": "cypress-cucumon-runner",
   "version": "1.0.0",
   "description": "",
-  "main": "src/cypress-preprocessor.js",
+  "main": "src/CucumonRunner.js",
   "scripts": {
     "test": "jasmine test/*test.js"
   },

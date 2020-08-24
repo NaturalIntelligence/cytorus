@@ -14,12 +14,24 @@ function updateTransformOption(options){
     return opt;
 }
 
-function preprocessor(options){
-    const opt = options || browserify.defaultOptions;
 
-    return async file => {
-      return browserify( updateTransformOption(opt) )(file);
-    };
-};
-  
-module.exports = preprocessor;
+
+class CucumonRunner {
+    constructor(config){
+        this.config = config
+    }
+
+    filePreProcessor(options){
+        const opt = options || browserify.defaultOptions;
+
+        return async file => {
+          return browserify( updateTransformOption(opt) )(file);
+        };
+    }
+
+    reportsTo(reportHandler){
+
+    }
+}
+
+module.exports = CucumonRunner;
