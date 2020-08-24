@@ -48,6 +48,7 @@ function runSteps(scenario){
 
 function runStep(step){
     const fnDetail = Repository.stepDefs[step.stepDefsIndex];
+    decorateDisplay(step,fnDetail);
     fnDetail.fn.apply(this, fnDetail.arg);
 }
 
@@ -79,3 +80,19 @@ module.exports = function( featureObj, fileName ){
     _E.afterFeature(featureObj, fileName, stats);
 
 }
+
+function decorateDisplay(step,fnDetail){
+    return Cypress.log({
+      name: "step",
+      displayName: step.keyword,
+      message: "**" + step.statement + "**",
+      consoleProps: () => {
+          return {
+              statement: step.statement,
+              Definition: fnDetail.fn,
+              Expression: fnDetail.exp,
+              Arguments: JSON.stringify(fnDetail.arg)
+          }
+      }
+    });
+  };
