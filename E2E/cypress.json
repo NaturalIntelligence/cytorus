@@ -1,0 +1,5 @@
+{
+  "ignoreTestFiles": ["*.js","*.ts", "*.d_ts"],
+  "chromeWebSecurity": false,
+  "video": false
+}
