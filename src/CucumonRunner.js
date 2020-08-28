@@ -1,5 +1,6 @@
 const browserify = require("@cypress/browserify-preprocessor");
 const transformer = require("./Transformer");
+const reportHandler = require("./ReportHandler");
 
 
 
@@ -18,7 +19,8 @@ function updateTransformOption(options){
 
 class CucumonRunner {
     constructor(config){
-        this.config = config
+        this.config = config;
+        this.reportHandlersArr;
     }
 
     filePreProcessor(options){
@@ -30,7 +32,7 @@ class CucumonRunner {
     }
 
     reportsTo(reportHandler){
-
+        reportHandler.register(reportHandler);
     }
 }
 
