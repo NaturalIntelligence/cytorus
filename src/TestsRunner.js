@@ -25,7 +25,8 @@ module.exports = function( featureObj, fileName ){
         
     });
     _E.afterFeature(featureObj, fileName);
-    reportHandler.report(featureObj, fileName)
+    //TODO: what if the test doesn't run because of some errors. 
+    reportHandler.report(featureObj)
 
 }
 function runScenarios(rule){
@@ -62,6 +63,7 @@ function runSteps(scenario){
                 .then(() => runStep(step))
                 .then(() => {
                     step.status = currentTest.status;
+                    step.error_message = currentTest.error_message;
                     _E.afterStep(step)
                 })
         }
@@ -71,11 +73,23 @@ function runSteps(scenario){
 function runStep(step){
     const fnDetail = stepDefs[step.stepDefsIndex];
     decorateDisplay(step,fnDetail);
-    fnDetail.fn.apply(this, fnDetail.arg);
+
+    if(!fnDetail.fn){
+        currentTest.status = "undefined";
+        step.duration = 0;
+        throw new Error("Step definition is missing for step: " + step.statement);
+    }else{
+        const startTime = Date.now();
+        fnDetail.fn.apply(this, fnDetail.arg);
+        const endTime = Date.now();
+        step.duration = endTime - startTime;
+    }
 }
 
 const failureReporter = err => {
-    currentTest.status = "F";
+    if(currentTest.status !== "undefined");
+        currentTest.status = "failed";
+    currentTest.error_message = err;
     _E.error(err);
     throw err;
 };

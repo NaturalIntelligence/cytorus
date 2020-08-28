@@ -9,9 +9,8 @@ const transform = fileName => {
 
     function end() {
       if (fileName.endsWith(".feature")) {
-        parseFeatureFile(content);
+        parseFeatureFile(content, fileName);
         const transformedCode = bundledCode(fileName, path.resolve(featureObjFilePath));
-
         this.queue(transformedCode);
       } else {
         this.queue(content);
@@ -25,7 +24,7 @@ const transform = fileName => {
     return through(write, end);
   };
 
-function parseFeatureFile(data){
+function parseFeatureFile(data,fileName){
   if (!fs.existsSync(".cucumon")){
     fs.mkdirSync(".cucumon");
   }
@@ -35,7 +34,7 @@ function parseFeatureFile(data){
   });
 
   let featureObj = featureFileParser.parse(data);
-
+  featureObj.fileName = fileName;
   fs.writeFile(featureObjFilePath, JSON.stringify(featureObj));
 
 }
