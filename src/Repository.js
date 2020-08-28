@@ -20,10 +20,8 @@ function feed(obj){
  */
 function indexBySteps(featureObject){
     
-    for(let rules_i=0; rules_i < featureObject.feature.rules.length; rules_i++){
-        const rule = featureObject.feature.rules[rules_i];
-        for(let scenario_i=0; scenario_i < rule.scenarios.length; scenario_i++){
-            const scenario = rule.scenarios[scenario_i];
+    forEachRule(featureObj, rule => {
+        forEachScenarioIn( rule , scenario => {
             for(let step_i=0; step_i < scenario.steps.length; step_i++){
                 const step = scenario.steps[step_i];
                 const indexFound = steps[ step.statement ];
@@ -36,9 +34,8 @@ function indexBySteps(featureObject){
                     step.stepDefsIndex = indexFound;
                 }
             }
-        }
-    }
-
+        })
+    });
 }
 
 function register(step_exp, fn){
@@ -89,9 +86,39 @@ function assignStepDefinition(fnDetail, step_exp, fn){
     }
 }
 
+
+function forEachRule(featureObj, cb){
+    for(let rules_i=0; rules_i < featureObj.feature.rules.length; rules_i++){
+        const rule = featureObj.feature.rules[rules_i];
+        cb(rule);
+    }
+}
+
+function forEachScenarioIn(rule, cb){
+    for(let scenario_i=0; scenario_i < rule.scenarios.length; scenario_i++){
+        const scenario = rule.scenarios[scenario_i];
+        if(scenario.examples){
+            for(let expanded_i=0; expanded_i < scenario.expanded.length; expanded_i++){
+                cb(scenario.expanded[expanded_i]);
+            }
+        }else{
+            cb(scenario);
+        }
+    }
+}
+
+function forEachScenario(featureObj, cb){
+    forEachRule(featureObj, rule => {
+        forEachScenarioIn( rule , cb)
+    });
+}
+
 module.exports = {
     feed: feed,
     steps: steps,
     stepDefs:stepDefs,
-    register: register
+    register: register,
+    forEachRule: forEachRule,
+    forEachScenarioIn: forEachScenarioIn,
+    forEachScenario: forEachScenario
 }

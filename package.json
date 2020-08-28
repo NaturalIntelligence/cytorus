@@ -12,7 +12,7 @@
   "dependencies": {
     "@cypress/browserify-preprocessor": "^3.0.1",
     "bexp": "^1.0.2",
-    "cucumon": "^1.1.1",
+    "cucumon": "^1.3.0",
     "through": "^2.3.8"
   },
   "devDependencies": {
