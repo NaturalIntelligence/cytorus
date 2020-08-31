@@ -55,7 +55,8 @@ function runSteps(scenario){
     //console.log("Running scenario", scenario.statement)
     it(scenario.statement, ()=>{
         currentTest = scenario;
-        scenario.status = "passed";
+        scenario.status = "pending";
+        
         window.SC = {};//reset Scenario Context for every test
         console.log("%c"+scenario.keyword+":: %c" + scenario.statement, "color: red; font-size:18px", "color: black; font-size:normal");
         for(let i=0; i < scenario.steps.length; i++){
@@ -88,6 +89,7 @@ function runStep(step , position){
             , "background-color: black; color:white"
             , "background-color: inherit;"
             , "color: inherit; text-decoration: line-through;");
+        //TODO: suggest the step definition code to implement
         throw new Error("Step definition is missing for step: " + step.statement);
     }else{
         console.log("%cStep "+ position +"::%c " + step.statement, "background-color: black; color:white", "color: inherit;");
@@ -95,6 +97,7 @@ function runStep(step , position){
         fnDetail.fn.apply(this, fnDetail.arg);
         const endTime = Date.now();
         step.duration = endTime - startTime;
+        currentTest.status = "passed";
     }
 }
 
