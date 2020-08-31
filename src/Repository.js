@@ -38,9 +38,9 @@ function findStep(step, isFromOutline){
     if(stepDef){
         fnDetail = {
             fn: stepDef.fn,
-            arg: [step.arg.content],
             exp: step.statement
         }
+        if(step.arg) fnDetail.arg = [step.arg.content];
         steps_cache[step.statement] = fnDetail;
     }else{
         for (let index = 0; index < regexSteps.length; index++) {
