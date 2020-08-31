@@ -1,89 +1,71 @@
 //In Browser
 const { resolveCucumberExp } = require("./CucumberExpressionResolver");
 
-/**
- * list of scenario steps.
- * It is subset of all steps filtered by tag expression, or feature file
- */
-let steps = {};
-let stepStatements = [];
-let stepDefs = [];
+const strSteps = {};
+const regexSteps = [];
 
-function feed(obj){
-    indexBySteps(obj);
-    stepStatements = Object.keys(steps);
+function register(step_exp, fn){
+    if(typeof step_exp === "string"){
+        const resolvedExp = resolveCucumberExp(step_exp);
+        if(resolvedExp === step_exp){//not a cucumber exp
+            strSteps[step_exp] = {
+                fn: fn
+            }
+            return;
+        }
+    }
+    registerRegx(step_exp, fn);
 }
 
-/**
- * Create the list of steps where each step, and step object in featureObject are pointing to stepDefs item
- * @param {any} featureObject 
- */
-function indexBySteps(featureObject){
-    
-    forEachRule(featureObj, rule => {
-        forEachScenarioIn( rule , scenario => {
-            for(let step_i=0; step_i < scenario.steps.length; step_i++){
-                const step = scenario.steps[step_i];
-                const indexFound = steps[ step.statement ];
-                if( typeof indexFound === "undefined"){
-                    stepDefs.push({});
-                    const index = stepDefs.length - 1;
-                    steps[ step.statement ] = index;
-                    step.stepDefsIndex = index;
-                }else{
-                    step.stepDefsIndex = indexFound;
-                }
-            }
-        })
+function registerRegx(regexStep, fn){
+    regexSteps.push({
+        fn: fn,
+        statement: regexStep
     });
 }
 
-function register(step_exp, fn){
-    let exp = step_exp;
-    if(typeof step_exp === "string"){
-        exp = resolveCucumberExp(exp);
-        if(resolvedExp === exp){
-            const stepDefIndex = steps[exp];
-            if(stepDefIndex){
-                const fnDetail = stepDefs[stepDefIndex];
-                assignStepDefinition(fnDetail, step_exp, fn)
-            }
-        }
-    }
-    registerUsingRegx(exp, fn);
-}
+const steps_cache = {}
 
-/**
- * 
- * @param {RegExp} step_exp 
- */
-function registerUsingRegx(step_exp, fn){
-    for(let i=0; i< stepStatements.length; i++){
-        const stepStatement = stepStatements[i];
-        const match = step_exp.exec(stepStatement);
-        if(match){
-            const stepDefIndex = steps[stepStatement];
-            const fnDetail = stepDefs[stepDefIndex];
-            assignStepDefinition(fnDetail, step_exp, fn);
-            
-            if(fnDetail.arg){
-                fnDetail.arg = match.slice(1).push(fnDetail.arg);
-            }else{
-                fnDetail.arg = match.slice(1)
-            }
-        }
+function findStep(step, isFromOutline){
+    if(!isFromOutline && steps_cache[step.statement]) {
+        //console.debug("Found in cache");
+        return steps_cache[step.statement];
     }
-}
 
-function assignStepDefinition(fnDetail, step_exp, fn){
-    if(fnDetail.fn){
-        console.log("Previously matched step definition:" + fnDetail.exp);
-        console.log("New matching step definition:" + fnDetail.exp);
-        throw new Error("Step is matching to multiple step definitions");
+    //console.debug("Not found in cache");
+    let fnDetail;
+    let stepDef = strSteps[step.statement];
+    if(stepDef){
+        fnDetail = {
+            fn: stepDef.fn,
+            arg: [step.arg.content],
+            exp: step.statement
+        }
+        steps_cache[step.statement] = fnDetail;
     }else{
-        fnDetail.exp = step_exp;
-        fnDetail.fn = fn;
+        for (let index = 0; index < regexSteps.length; index++) {
+            stepDef = regexSteps[index];
+            const match = stepDef.statement.exec(step.statement);
+
+            if(match){
+                fnDetail = {
+                    fn: stepDef.fn,
+                    exp: step.statement
+                }
+
+                const matchingArgs = match.slice(1);
+                if(step.arg){//doc string or data table
+                    matchingArgs.push(step.arg.content);
+                }
+                fnDetail.arg = matchingArgs;    
+
+                steps_cache[step.statement] = fnDetail;
+            }
+        }
+
     }
+    //console.debug("Step definition detail::",fnDetail);
+    return fnDetail;
 }
 
 
@@ -114,9 +96,7 @@ function forEachScenario(featureObj, cb){
 }
 
 module.exports = {
-    feed: feed,
-    steps: steps,
-    stepDefs:stepDefs,
+    findStepDef: findStep,
     register: register,
     forEachRule: forEachRule,
     forEachScenarioIn: forEachScenarioIn,

@@ -6,8 +6,7 @@ const Repository = require("./Repository");
 
 if(window){
     window.But = window.And = window.Then 
-        = window.When = window.Given = (step_exp, fn) => {
-            console.log("registering step definition", step_exp)
+        = window.When = window.Given = window.step = (step_exp, fn) => {
             Repository.register(step_exp, fn);
     }
 }

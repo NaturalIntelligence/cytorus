@@ -3,6 +3,10 @@ const fs = require('fs');
 const path = require('path');
 const Cucumon = require('cucumon');
 
+const featureFileParser =  new Cucumon({
+  clubBgSteps : true,
+});
+
 const featureObjFilePath = ".cucumon/featureObj.json";
 const transform = fileName => {
     let content = "";
@@ -29,10 +33,6 @@ function parseFeatureFile(data,fileName){
     fs.mkdirSync(".cucumon");
   }
 
-  const featureFileParser =  new Cucumon({
-    clubBgSteps : true,
-  });
-
   let featureObj = featureFileParser.parse(data);
   featureObj.fileName = fileName;
   fs.writeFile(featureObjFilePath, JSON.stringify(featureObj));
@@ -54,7 +54,6 @@ function bundledCode(fileName, p){
     codeAsStr += "window.featureObj= filter(require('"+p+"'));";
     codeAsStr += "window.Repository = " + requireInBrowser("Repository.js");
     codeAsStr += "const runTest = " + requireInBrowser("TestsRunner.js");
-    codeAsStr += "Repository.feed(featureObj);";
     codeAsStr += "\n" + loadDefinitions().join("\n"); //include step definitions
 
     //Run tests
@@ -69,4 +68,7 @@ function requireInBrowser(moduleName){
     return "require('" + path.join( __dirname, moduleName) +"');"
 }
 
-module.exports = transform;
+module.exports = {
+  transformer: transform,
+  parser: featureFileParser
+}

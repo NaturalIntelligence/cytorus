@@ -1,4 +1,5 @@
 //TODO: support custom parameters. Ref: https://cucumber.io/docs/cucumber/cucumber-expressions/
+//TODO: Externalize it
 
 const regexMatch = [
     { key : /(?<!\\){int}/g, val: "-?[0-9]+"} ,
