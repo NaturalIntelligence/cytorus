@@ -1,3 +1,7 @@
+#!
+
+# @skip doesn't skip a test from parsing
+@skip
 Feature: No place for mistakes
 
 This test will fail at the time of setup.

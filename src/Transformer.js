@@ -12,7 +12,7 @@ const transform = fileName => {
     let content = "";
 
     function end() {
-      if (fileName.endsWith(".feature")) {
+      if (fileName.endsWith(".feature") && !content.startsWith("#!")) {
         parseFeatureFile(content, fileName);
         const transformedCode = bundledCode(fileName, path.resolve(featureObjFilePath));
         this.queue(transformedCode);
