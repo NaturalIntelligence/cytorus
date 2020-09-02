@@ -65,7 +65,6 @@ function runSteps(scenario){
             cy
                 .then(() => _E.beforeStep(step))
                 .then(() => {
-                    
                     runStep(step, i+1);
                 })
                 .then(() => {
@@ -77,35 +76,46 @@ function runSteps(scenario){
     })
 }
 
-function runStep(step , position){
-    const isOutline = currentTest.keyword.length > 9;
-    const fnDetail = findStepDef(step, isOutline);
+function runStep(step, position){
+    const fnDetail = findStepDef(step);
     decorateDisplay(step,fnDetail);
 
     if(!fnDetail){
         currentTest.status = "undefined";
         step.duration = 0;
-        console.log("%cStep "+ position +"::%c 🤦 %c" + step.statement
+        logMe("%cStep "+ position +"::%c 🤦 %c" + step.statement
             , "background-color: black; color:white"
             , "background-color: inherit;"
             , "color: inherit; text-decoration: line-through;");
         //TODO: suggest the step definition code to implement
         throw new Error("Step definition is missing for step: " + step.statement);
     }else{
-        console.log("%cStep "+ position +"::%c " + step.statement, "background-color: black; color:white", "color: inherit;");
+        
         const startTime = Date.now();
-        fnDetail.fn.apply(this, fnDetail.arg);
+        try{
+            fnDetail.fn.apply(this, fnDetail.arg);
+            logMe("%cStep "+ position +"::%c " + step.statement, "background-color: black; color:white", "color: inherit;");
+        }catch(err){
+            if(currentTest.status !== "undefined") currentTest.status = "failed";
+            currentTest.error_message = err;
+            logMe("%cStep "+ position +"::%c 🐞 %c" + step.statement
+                , "background-color: black; color:white"
+                , "background-color: inherit;"
+                , "color: red;");
+            throw err;
+        }
         const endTime = Date.now();
         step.duration = endTime - startTime;
         currentTest.status = "passed";
     }
 }
 
+function logMe(){
+    console.log.apply(this, arguments);
+    //cy.task('cucumon_log', arguments);
+}
+
 const failureReporter = err => {
-    
-    if(currentTest.status !== "undefined");
-        currentTest.status = "failed";
-    currentTest.error_message = err;
     _E.error(err);
     throw err;
 };
