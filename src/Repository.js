@@ -6,15 +6,19 @@ const regexSteps = [];
 
 function register(step_exp, fn){
     if(typeof step_exp === "string"){
-        const resolvedExp = resolveCucumberExp(step_exp);
-        if(resolvedExp === step_exp){//not a cucumber exp
+        //const resolvedExp = resolveCucumberExp(step_exp);
+        //if(resolvedExp === step_exp){//not a cucumber exp
             strSteps[step_exp] = {
                 fn: fn
             }
-            return;
-        }
+            //return;
+        //}else{
+        //    step_exp = new RegExp(resolvedExp);
+            //registerRegx(resolvedExp, fn);
+        //}
+    }else{
+        registerRegx(step_exp, fn);
     }
-    registerRegx(step_exp, fn);
 }
 
 function registerRegx(regexStep, fn){
@@ -26,8 +30,8 @@ function registerRegx(regexStep, fn){
 
 const steps_cache = {}
 
-function findStep(step, isFromOutline){
-    if(!isFromOutline && steps_cache[step.statement]) {
+function findStep(step){
+    if(!step.arg && steps_cache[step.statement]) {
         //console.debug("Found in cache");
         return steps_cache[step.statement];
     }
@@ -40,11 +44,15 @@ function findStep(step, isFromOutline){
             fn: stepDef.fn,
             exp: step.statement
         }
-        if(step.arg) fnDetail.arg = [step.arg.content];
-        steps_cache[step.statement] = fnDetail;
+        if(step.arg) {
+            fnDetail.arg = [step.arg.content];
+        }else{
+            steps_cache[step.statement] = fnDetail;
+        }
     }else{
         for (let index = 0; index < regexSteps.length; index++) {
             stepDef = regexSteps[index];
+            //console.log(stepDef.statement);
             const match = stepDef.statement.exec(step.statement);
 
             if(match){
@@ -58,8 +66,7 @@ function findStep(step, isFromOutline){
                     matchingArgs.push(step.arg.content);
                 }
                 fnDetail.arg = matchingArgs;    
-
-                steps_cache[step.statement] = fnDetail;
+                if(!fnDetail.arg) steps_cache[step.statement] = fnDetail;
             }
         }
 
