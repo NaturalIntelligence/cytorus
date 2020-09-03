@@ -9,7 +9,7 @@ module.exports = function( featureObj, fileName ){
     
     _E.beforeFeature(featureObj, fileName);
 
-    describe(featureObj.feature.statement, () => {
+    describe("Feature: " + featureObj.feature.statement, () => {
         forEachRule(featureObj, rule => {
             window.Cypress.Promise.each([
                 _E.beforeRule,
@@ -53,7 +53,7 @@ function runScenario(scenario){
 
 function runSteps(scenario){
     //console.log("Running scenario", scenario.statement)
-    it(scenario.statement, ()=>{
+    it( scenario.keyword + ": "+ scenario.statement, ()=>{
         currentTest = scenario;
         scenario.status = "pending";
         
@@ -78,9 +78,10 @@ function runSteps(scenario){
 
 function runStep(step, position){
     const fnDetail = findStepDef(step);
-    decorateDisplay(step,fnDetail);
 
     if(!fnDetail){
+        const formattedStatement = " 🤦 ~~**" + step.statement + "**~~";
+        decorateDisplay(step,fnDetail, formattedStatement);
         currentTest.status = "undefined";
         step.duration = 0;
         logMe("%cStep "+ position +"::%c 🤦 %c" + step.statement
@@ -88,9 +89,10 @@ function runStep(step, position){
             , "background-color: inherit;"
             , "color: inherit; text-decoration: line-through;");
         //TODO: suggest the step definition code to implement
+        
         throw new Error("Step definition is missing for step: " + step.statement);
     }else{
-        
+        decorateDisplay(step,fnDetail, "**"+ step.statement +"**");
         const startTime = Date.now();
         try{
             fnDetail.fn.apply(this, fnDetail.arg);
@@ -98,6 +100,7 @@ function runStep(step, position){
         }catch(err){
             if(currentTest.status !== "undefined") currentTest.status = "failed";
             currentTest.error_message = err;
+            
             logMe("%cStep "+ position +"::%c 🐞 %c" + step.statement
                 , "background-color: black; color:white"
                 , "background-color: inherit;"
@@ -123,7 +126,7 @@ Cypress.on("fail", failureReporter);
 
 
 
-function decorateDisplay(step,fnDetail){
+function decorateDisplay(step,fnDetail, statement){
     const consoleLog = {
         statement: step.statement,
     }
@@ -132,12 +135,14 @@ function decorateDisplay(step,fnDetail){
         consoleLog.Expression = fnDetail.exp;
         consoleLog.Arguments = JSON.stringify(fnDetail.arg);
     }
-    return Cypress.log({
-      name: "step",
-      displayName: step.keyword,
-      message: "**" + step.statement + "**",
-      consoleProps: () => consoleLog
-    });
+
+    Cypress.log({
+        name: "step",
+        displayName: step.keyword,
+        message: statement, //markdown
+        consoleProps: () => consoleLog
+      });
+
   };
 
 // Cypress.on('fail', (err, runnable) => {
