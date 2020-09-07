@@ -1,5 +1,12 @@
 
-function beforeFeature(fObj, fName){
+function beforeAll(){
+    window._c_trigger("B", "all");
+}
+function afterAll(){
+    window._c_trigger("A", "all");
+}
+
+function beforeFeature(fObj){
     const eventObj = {
         //fileName: fName,
         //lineNumber : fObj.lineNumber,
@@ -13,7 +20,8 @@ function beforeFeature(fObj, fName){
     //Here we can call reporter
     window._c_trigger("B", "feature", eventObj);
 }
-function afterFeature(fObj, fName, stats){
+
+function afterFeature(fObj, stats){
     const eventObj = {
         //fileName: fName,
         //lineNumber : fObj.lineNumber,
@@ -24,27 +32,6 @@ function afterFeature(fObj, fName, stats){
     }
     //Here we can call reporter
     window._c_trigger("A", "feature", eventObj);
-}
-
-function beforeRule(rule){
-    const eventObj = {
-        statement : rule.statement,
-        count: {
-            scenarios: rule.scenarios.length
-        }
-    }
-    window._c_trigger("B", "rule", eventObj);
-}
-
-//TODO: collect rule level scenario stats
-function afterRule(rule){
-    const eventObj = {
-        statement : rule.statement,
-        count: {
-            scenarios: rule.scenarios.length
-        }
-    }
-    window._c_trigger("A", "rule", eventObj);
 }
 
 function beforeScenario(scenario){
@@ -80,10 +67,10 @@ function error(err){
 }
 
 module.exports = {
+    beforeAll: beforeAll,
+    afterAll: afterAll,
     beforeFeature: beforeFeature,
     afterFeature: afterFeature,
-    beforeRule: beforeRule,
-    afterRule: afterRule,
     beforeScenario: beforeScenario,
     afterScenario: afterScenario,
     beforeStep: beforeStep,

@@ -1,18 +1,24 @@
 const through = require("through");
 const fs = require('fs');
 const path = require('path');
-const Cucumon = require('cucumon');
+const filter = require('./ScenarioFilter');
+const {config, featureFileParser} = require('./ConfigBuilder');
 
-const featureFileParser =  new Cucumon({
-  clubBgSteps : true,
-});
 
 const featureObjFilePath = ".cucumon/featureObj.json";
 const transform = fileName => {
     let content = "";
 
     function end() {
-      if (fileName.endsWith(".feature") && !content.startsWith("#!")) {
+      if (fileName === "All.features") {
+        //Feature files are already parsed and saved at this stage
+        if(config.parsedDataPath){
+          const transformedCode = bundledCode(fileName, path.resolve(config.parsedDataPath));
+          this.queue(transformedCode);
+        }else{
+          this.queue(null);
+        }
+      }else if (fileName.endsWith(".feature") && !content.startsWith("#!")) {
         parseFeatureFile(content, fileName);
         const transformedCode = bundledCode(fileName, path.resolve(featureObjFilePath));
         this.queue(transformedCode);
@@ -29,14 +35,12 @@ const transform = fileName => {
   };
 
 function parseFeatureFile(data,fileName){
-  if (!fs.existsSync(".cucumon")){
-    fs.mkdirSync(".cucumon");
-  }
-
-  let featureObj = featureFileParser.parse(data);
-  featureObj.fileName = fileName;
+  //tag expression, include, exclude filters are skipped in interactive mode
+  let filterConfig = {};
+  if(config.specs.length === 1) filterConfig = config.specs[0];
+  let featureObj = filter([featureFileParser.parse(data)], filterConfig);
+  featureObj.fileName = fileName; //for record
   fs.writeFile(featureObjFilePath, JSON.stringify(featureObj));
-
 }
 
 const loadDefinitions = require("./StepDefinitionsPathLoader");
@@ -50,8 +54,8 @@ function bundledCode(fileName, p){
     
     codeAsStr += requireInBrowser( "Globals.js"); 
     codeAsStr += requireInBrowser( "Events.js"); 
-    codeAsStr += "const filter = " + requireInBrowser("ScenarioFilter.js");
-    codeAsStr += "window.featureObj= filter(require('"+p+"'));";
+    //codeAsStr += "const filter = " + requireInBrowser("ScenarioFilter.js");
+    codeAsStr += "window.featureObj= require('"+p+"');";
     codeAsStr += "window.Repository = " + requireInBrowser("Repository.js");
     codeAsStr += "const runTest = " + requireInBrowser("TestsRunner.js");
     codeAsStr += "\n" + loadDefinitions().join("\n"); //include step definitions

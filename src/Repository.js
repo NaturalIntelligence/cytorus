@@ -31,6 +31,7 @@ function registerRegx(regexStep, fn){
 const steps_cache = {}
 
 function findStep(step){
+    
     if(!step.arg && steps_cache[step.statement]) {
         //console.debug("Found in cache");
         return steps_cache[step.statement];
@@ -75,17 +76,22 @@ function findStep(step){
     return fnDetail;
 }
 
-
-function forEachRule(featureObj, cb){
-    for(let rules_i=0; rules_i < featureObj.feature.rules.length; rules_i++){
-        const rule = featureObj.feature.rules[rules_i];
+function forEachFeature(features, cb){
+    for(let f_i=0; f_i < features.length; f_i++){
+        const feature = features[f_i];
+        cb(feature);
+    }
+}
+function forEachRule(feature, cb){
+    for(let i=0; i < feature.rules.length; i++){
+        const rule = feature.rules[i];
         cb(rule);
     }
 }
 
 function forEachScenarioIn(rule, cb){
-    for(let scenario_i=0; scenario_i < rule.scenarios.length; scenario_i++){
-        const scenario = rule.scenarios[scenario_i];
+    for(let i=0; i < rule.scenarios.length; i++){
+        const scenario = rule.scenarios[i];
         if(scenario.examples){
             for(let expanded_i=0; expanded_i < scenario.expanded.length; expanded_i++){
                 cb(scenario.expanded[expanded_i]);
@@ -97,7 +103,7 @@ function forEachScenarioIn(rule, cb){
 }
 
 function forEachScenario(featureObj, cb){
-    forEachRule(featureObj, rule => {
+    forEachFeature(featureObj, rule => {
         forEachScenarioIn( rule , cb)
     });
 }
@@ -105,6 +111,7 @@ function forEachScenario(featureObj, cb){
 module.exports = {
     findStepDef: findStep,
     register: register,
+    forEachFeature: forEachFeature,
     forEachRule: forEachRule,
     forEachScenarioIn: forEachScenarioIn,
     forEachScenario: forEachScenario

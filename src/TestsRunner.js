@@ -1,38 +1,44 @@
 //This code will run in browser
 const _E = require("./EventObjectBuilder");
-const {findStepDef, forEachRule, forEachScenarioIn} = require("./Repository");
+const {findStepDef, forEachFeature, forEachRule, forEachScenarioIn} = require("./Repository");
 const reportHandler = require("./ReportHandler");
 
 let currentTest = {};
 
-module.exports = function( featureObj, fileName ){
+//TODO: update to run for array of features
+module.exports = function( featureObj ){
     
-    _E.beforeFeature(featureObj, fileName);
-
-    describe("Feature: " + featureObj.feature.statement, () => {
-        forEachRule(featureObj, rule => {
-            window.Cypress.Promise.each([
-                _E.beforeRule,
-                runScenarios,
-                _E.afterRule,
-            ], (fn) => {
-                if(!fn){
-                    console.log()
-                }
-                fn(rule);
-            })
+    
+    _E.beforeAll();
+    forEachFeature(featureObj, feature => {
+        _E.beforeFeature(feature);
+        describe("Feature: " + feature.statement, () => {
+            forEachRule(feature, rule => {
+                window.Cypress.Promise.each([
+                    //_E.beforeRule,
+                    runScenarios,
+                    //_E.afterRule,
+                ], (fn) => {
+                    if(!fn){
+                        console.log()
+                    }
+                    fn(rule);
+                })
+            });
         });
-        
+        _E.afterFeature(feature);
     });
-    _E.afterFeature(featureObj, fileName);
+    _E.afterAll();
     //TODO: what if the test doesn't run because of some errors. 
     reportHandler.report(featureObj)
 
 }
 function runScenarios(rule){
+    
     forEachScenarioIn(rule, runScenario);
 }
 function runScenario(scenario){
+    
     if(scenario.skip) {
         //Update pending test count
         xit(scenario.statement, ()=> {}); 
@@ -52,16 +58,18 @@ function runScenario(scenario){
 }
 
 function runSteps(scenario){
-    //console.log("Running scenario", scenario.statement)
+    
     it( scenario.keyword + ": "+ scenario.statement, ()=>{
         currentTest = scenario;
         scenario.status = "pending";
         
         window.SC = {};//reset Scenario Context for every test
+        
         console.log("%c"+scenario.keyword+":: %c" + scenario.statement, "color: red; font-size:18px", "color: black; font-size:normal");
         for(let i=0; i < scenario.steps.length; i++){
             if(currentTest.status === "failed" || currentTest.status === "undefined") break; //don't execute rest steps;
             const step = scenario.steps[i];
+            
             cy
                 .then(() => _E.beforeStep(step))
                 .then(() => {
@@ -95,6 +103,7 @@ function runStep(step, position){
         decorateDisplay(step,fnDetail, "**"+ step.statement +"**");
         const startTime = Date.now();
         try{
+            
             fnDetail.fn.apply(this, fnDetail.arg);
             logMe("%cStep "+ position +"::%c " + step.statement, "background-color: black; color:white", "color: inherit;");
         }catch(err){
@@ -111,6 +120,8 @@ function runStep(step, position){
         step.duration = endTime - startTime;
         currentTest.status = "passed";
     }
+    
+
 }
 
 function logMe(){
@@ -138,7 +149,7 @@ function decorateDisplay(step,fnDetail, statement){
 
     Cypress.log({
         name: "step",
-        displayName: step.keyword,
+        displayName: step.keyword.toUpperCase(),
         message: statement, //markdown
         consoleProps: () => consoleLog
       });
@@ -150,3 +161,4 @@ function decorateDisplay(step,fnDetail, statement){
 //     // failing the test
 //     return false
 // })
+

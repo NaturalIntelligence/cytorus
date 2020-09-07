@@ -1,6 +1,7 @@
 //In browser
 
 const beforeEvents = {
+    all: [],
     feature: [],  //Before each feature; args: featureObject
     rule: [],     //Before each rule
     scenario: [], //Before each scenario
@@ -8,6 +9,7 @@ const beforeEvents = {
 }
 
 const afterEvents = {
+    all: [],
     feature: [],     //Before each 
     rule: [],
     scenario: [], //Before each scenario
