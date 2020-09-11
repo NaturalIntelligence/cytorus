@@ -41,7 +41,7 @@ function runScenario(scenario){
     
     if(scenario.skip) {
         //Update pending test count
-        xit(scenario.statement, ()=> {}); 
+        xit(scenario.keyword + ": "+ scenario.statement, ()=> {}); 
         //it.skip(scenario.statement, ()=> {}); 
         scenario.status = "skipped";
         return; 
