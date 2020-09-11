@@ -29,6 +29,8 @@ function bestFit(features, binCount, threshold){
     flat(features, groups, scenarios);
     groups.sort(compare);
     const totalScenarios = sum(groups);
+    console.log("Total scenarios to run: ", totalScenarios);
+
     let avg = Math.ceil(totalScenarios / binCount);
     if(totalScenarios < threshold){
         const featureGroups = [{
@@ -40,7 +42,7 @@ function bestFit(features, binCount, threshold){
             featureGroups[0].scenarios += groups[i].scenarios
         }
         return featureGroups;
-    }else if(avg < binCount){
+    }else if(avg <= binCount){
         avg = threshold;
         binCount = Math.floor(totalScenarios/avg);
     }else if(groups.length < binCount){
