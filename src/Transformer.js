@@ -4,23 +4,17 @@ const path = require('path');
 const filter = require('./ScenarioFilter');
 const {config, featureFileParser} = require('./ConfigBuilder');
 
-
 const featureObjFilePath = ".cucumon/featureObj.json";
 const transform = fileName => {
     let content = "";
-
     function end() {
-      if (fileName === "All.features") {
-        //Feature files are already parsed and saved at this stage
-        if(config.parsedDataPath){
-          const transformedCode = bundledCode(fileName, path.resolve(config.parsedDataPath));
-          this.queue(transformedCode);
-        }else{
-          this.queue(null);
-        }
+      if (fileName.match("group[0-9]+.cucumon")) { //TODO: this will run on "$ npx cypress run"
+        fileName = fileName.replace(/.cucumon$/, ".json");
+        const transformedCode = bundledCode(fileName);
+        this.queue( transformedCode );
       }else if (fileName.endsWith(".feature") && !content.startsWith("#!")) {
         parseFeatureFile(content, fileName);
-        const transformedCode = bundledCode(fileName, path.resolve(featureObjFilePath));
+        const transformedCode = bundledCode(path.resolve(featureObjFilePath));
         this.queue(transformedCode);
       } else {
         this.queue(content);
@@ -35,10 +29,8 @@ const transform = fileName => {
   };
 
 function parseFeatureFile(data,fileName){
-  //tag expression, include, exclude filters are skipped in interactive mode
-  let filterConfig = {};
-  if(config.specs.length === 1) filterConfig = config.specs[0];
-  let featureObj = filter([featureFileParser.parse(data)], filterConfig);
+  const featureObj = [featureFileParser.parse(data)];
+  filter(featureObj, {});
   featureObj.fileName = fileName; //for record
   fs.writeFile(featureObjFilePath, JSON.stringify(featureObj));
 }
@@ -49,22 +41,19 @@ const loadDefinitions = require("./StepDefinitionsPathLoader");
  * Bundle all required code including step defenitions, and test code generator
  * @param {string} featureFileData 
  */
-function bundledCode(fileName, p){
+function bundledCode(featureFilePath){
     let codeAsStr = "";
-    
+
+    codeAsStr += "window.featureObj= require('"+featureFilePath+"');";
+    //codeAsStr += "window.featureObj= require('"+inputJsonFilePath+"');";
     codeAsStr += requireInBrowser( "Globals.js"); 
-    codeAsStr += requireInBrowser( "Events.js"); 
-    //codeAsStr += "const filter = " + requireInBrowser("ScenarioFilter.js");
-    codeAsStr += "window.featureObj= require('"+p+"');";
+    codeAsStr += requireInBrowser( "Events.js");
     codeAsStr += "window.Repository = " + requireInBrowser("Repository.js");
     codeAsStr += "const runTest = " + requireInBrowser("TestsRunner.js");
     codeAsStr += "\n" + loadDefinitions().join("\n"); //include step definitions
 
     //Run tests
-    codeAsStr += "runTest(featureObj,'"+ fileName +"');";
-
-    //codeAsStr += "const codeLoader = " + requireInBrowser("CodeLoader.js");
-    //codeAsStr += "codeLoader('"+ process.cwd()+"', '"+ __dirname+"', '"+fileName+"','"+ p +"')";
+    codeAsStr += "runTest(featureObj);";
     return codeAsStr;
 }
 
