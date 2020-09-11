@@ -1,5 +1,6 @@
 //In Browser
 const { resolveCucumberExp } = require("./CucumberExpressionResolver");
+const { processDataTable, processDocString } = require("./ArgInsProcessor");
 
 const strSteps = {};
 const regexSteps = [];
@@ -32,12 +33,9 @@ const steps_cache = {}
 
 function findStep(step){
     
-    if(!step.arg && steps_cache[step.statement]) {
-        //console.debug("Found in cache");
-        return steps_cache[step.statement];
-    }
+    //if a step has no argument and atring then check in cache
+    if(!step.arg && steps_cache[step.statement]) return steps_cache[step.statement];
 
-    //console.debug("Not found in cache");
     let fnDetail;
     let stepDef = strSteps[step.statement];
     if(stepDef){
@@ -46,6 +44,7 @@ function findStep(step){
             exp: step.statement
         }
         if(step.arg) {
+            processArgument(step);
             fnDetail.arg = [step.arg.content];
         }else{
             steps_cache[step.statement] = fnDetail;
@@ -64,6 +63,7 @@ function findStep(step){
 
                 const matchingArgs = match.slice(1);
                 if(step.arg){//doc string or data table
+                    processArgument(step);
                     matchingArgs.push(step.arg.content);
                 }
                 fnDetail.arg = matchingArgs;    
@@ -74,6 +74,19 @@ function findStep(step){
     }
     //console.debug("Step definition detail::",fnDetail);
     return fnDetail;
+}
+
+function processArgument(step){
+    try{
+        if(step.arg.type === "DataTable"){
+            step.arg.content = processDataTable(step.arg.instruction, step.arg.content);
+        }else{
+            step.arg.content = processDocString(step.arg.instruction, step.arg.content);
+        }
+    }catch(err){
+        console.log("🤦 Error in processing instruction for step: \n'''" + step.statement + "''' at line number" + step.lineNumber + " \n");
+        throw err;
+    }
 }
 
 function forEachFeature(features, cb){
