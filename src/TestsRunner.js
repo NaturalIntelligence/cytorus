@@ -1,86 +1,65 @@
 //This code will run in browser
 const _E = require("./EventObjectBuilder");
 const {findStepDef, forEachFeature, forEachRule, forEachScenarioIn} = require("./Repository");
-const reportHandler = require("./ReportHandler");
 
 let currentTest = {};
-
-//TODO: update to run for array of features
-module.exports = function( featureObj ){
-    
-    
-    _E.beforeAll();
-    forEachFeature(featureObj, feature => {
-        _E.beforeFeature(feature);
-        describe("Feature: " + feature.statement, () => {
-            forEachRule(feature, rule => {
-                window.Cypress.Promise.each([
-                    //_E.beforeRule,
-                    runScenarios,
-                    //_E.afterRule,
-                ], (fn) => {
-                    if(!fn){
-                        console.log()
-                    }
-                    fn(rule);
-                })
+module.exports = function( featureArr ){
+    describe("Suit", () => {
+        before(() => _E.beforeSuit(featureArr));
+        after(() => _E.afterSuit(featureArr));
+        forEachFeature(featureObj, feature => {
+            describe("Feature: " + feature.statement, () => {
+                before(() => {
+                    logMe("%cFeature: %c" + feature.statement, "color: red; font-size:18px; font-weight: bols;", "color: black; font-size:normal");
+                    _E.beforeFeature(feature);
+                });
+                after(() => _E.afterFeature(feature));
+                forEachRule(feature, rule => {
+                    forEachScenarioIn(rule, scenario => {
+                        if(scenario.skip) {
+                            //Update pending test count
+                            xit(scenario.keyword + ": "+ scenario.statement, ()=> {}); 
+                            //it.skip(scenario.statement, ()=> {}); 
+                            scenario.status = "skipped";
+                        }else{
+                            runSteps(scenario);
+                        }
+                    });
+                } );
             });
         });
-        _E.afterFeature(feature);
     });
-    _E.afterAll();
-    //TODO: what if the test doesn't run because of some errors. 
-    reportHandler.report(featureObj)
-
-}
-function runScenarios(rule){
-    
-    forEachScenarioIn(rule, runScenario);
-}
-function runScenario(scenario){
-    
-    if(scenario.skip) {
-        //Update pending test count
-        xit(scenario.keyword + ": "+ scenario.statement, ()=> {}); 
-        //it.skip(scenario.statement, ()=> {}); 
-        scenario.status = "skipped";
-        return; 
-    }
-    //console.log("Running Scenario", scenario.statement);
-    
-    window.Cypress.Promise.each([
-        _E.beforeScenario,
-        runSteps,
-        _E.afterScenario,
-    ], (fn) => {
-        fn(scenario);
-    })
 }
 
 function runSteps(scenario){
-    
     it( scenario.keyword + ": "+ scenario.statement, ()=>{
         currentTest = scenario;
         scenario.status = "pending";
         
         window.SC = {};//reset Scenario Context for every test
-        
-        console.log("%c"+scenario.keyword+":: %c" + scenario.statement, "color: red; font-size:18px", "color: black; font-size:normal");
-        for(let i=0; i < scenario.steps.length; i++){
-            if(currentTest.status === "failed" || currentTest.status === "undefined") break; //don't execute rest steps;
-            const step = scenario.steps[i];
-            
-            cy
-                .then(() => _E.beforeStep(step))
-                .then(() => {
-                    runStep(step, i+1);
-                })
-                .then(() => {
-                    step.status = currentTest.status;
-                    step.error_message = currentTest.error_message;
-                    _E.afterStep(step)
-                })
-        }
+
+        cy
+        .then( () => _E.beforeScenario(scenario) )
+        .then( () => {
+            logMe("%c"+scenario.keyword+":: %c" + scenario.statement, "color: red; font-size:16px", "color: black; font-size:normal");
+            for(let i=0; i < scenario.steps.length; i++){
+                if(currentTest.status === "failed" || currentTest.status === "undefined") break; //don't execute rest steps;
+                const step = scenario.steps[i];
+                
+                cy
+                    .then(() => _E.beforeStep(step))
+                    .then(() => {
+                        runStep(step, i+1);
+                    })
+                    .then(() => {
+                        step.status = currentTest.status;
+                        step.error_message = currentTest.error_message;
+                        _E.afterStep(step)
+                    });
+            }
+        }).then(() => {
+            _E.afterScenario(scenario)
+        });
     })
 }
 

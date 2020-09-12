@@ -1,9 +1,9 @@
 
-function beforeAll(){
-    window._c_trigger("B", "all");
+function beforeSuit(){
+    window._c_trigger("B", "suit");
 }
-function afterAll(){
-    window._c_trigger("A", "all");
+function afterSuit(){
+    window._c_trigger("A", "suit");
 }
 
 function beforeFeature(fObj){
@@ -67,8 +67,8 @@ function error(err){
 }
 
 module.exports = {
-    beforeAll: beforeAll,
-    afterAll: afterAll,
+    beforeSuit: beforeSuit,
+    afterSuit: afterSuit,
     beforeFeature: beforeFeature,
     afterFeature: afterFeature,
     beforeScenario: beforeScenario,

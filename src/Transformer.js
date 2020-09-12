@@ -2,7 +2,7 @@ const through = require("through");
 const fs = require('fs');
 const path = require('path');
 const filter = require('./ScenarioFilter');
-const {config, featureFileParser} = require('./ConfigBuilder');
+const {featureFileParser} = require('./ConfigBuilder');
 
 const featureObjFilePath = ".cucumon/featureObj.json";
 const transform = fileName => {
@@ -63,5 +63,4 @@ function requireInBrowser(moduleName){
 
 module.exports = {
   transformer: transform,
-  parser: featureFileParser
 }

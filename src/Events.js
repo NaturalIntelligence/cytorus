@@ -1,7 +1,7 @@
 //In browser
 
 const beforeEvents = {
-    all: [],
+    suit: [],
     feature: [],  //Before each feature; args: featureObject
     rule: [],     //Before each rule
     scenario: [], //Before each scenario
@@ -9,7 +9,7 @@ const beforeEvents = {
 }
 
 const afterEvents = {
-    all: [],
+    suit: [],
     feature: [],     //Before each 
     rule: [],
     scenario: [], //Before each scenario
@@ -37,6 +37,6 @@ function trigger(ba, eventName, arg){
     window.Cypress.Promise.each( registry[eventName] , fn => fn(this, [arg]) );
 }
 
-window.before = before;
-window.after = after;
+window.Before = before;
+window.After = after;
 window._c_trigger = trigger;
