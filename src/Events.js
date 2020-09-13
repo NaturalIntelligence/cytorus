@@ -34,7 +34,7 @@ function trigger(ba, eventName, arg){
         registry = afterEvents;
     }
     //TODO: test that fn should run in it's own context
-    window.Cypress.Promise.each( registry[eventName] , fn => fn(this, [arg]) );
+    window.Cypress.Promise.each( registry[eventName] , fn => fn.apply(this, [arg]) );
 }
 
 window.Before = before;
