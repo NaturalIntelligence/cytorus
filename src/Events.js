@@ -17,12 +17,12 @@ const afterEvents = {
     //error: [] //When a step fails
 }
 
-function before( eventName, fn){
+function registerBeforeEvent( eventName, fn){
     if(beforeEvents[eventName]){
         beforeEvents[eventName].push(fn);
     }
 }
-function after( eventName, fn){
+function registerAfterEvent( eventName, fn){
     if(afterEvents[eventName]){
         afterEvents[eventName].push(fn);
     }
@@ -37,6 +37,10 @@ function trigger(ba, eventName, arg){
     window.Cypress.Promise.each( registry[eventName] , fn => fn.apply(this, [arg]) );
 }
 
-window.Before = before;
-window.After = after;
-window._c_trigger = trigger;
+window.Before = registerBeforeEvent;
+window.After = registerAfterEvent;
+//window._c_trigger = trigger;
+
+module.exports = {
+    trigger : trigger
+}
