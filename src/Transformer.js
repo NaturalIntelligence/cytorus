@@ -4,6 +4,8 @@ const path = require('path');
 const filter = require('./ScenarioFilter');
 const {featureFileParser} = require('./ConfigBuilder');
 
+
+
 const featureObjFilePath = ".cucumon/featureObj.json";
 const transform = fileName => {
     let content = "";
@@ -29,9 +31,11 @@ const transform = fileName => {
   };
 
 function parseFeatureFile(data,fileName){
-  const featureObj = [featureFileParser.parse(data)];
-  filter(featureObj, {});
+  let featureObj = featureFileParser.parse(data);
+  console.log("parsing feature file");
   featureObj.fileName = fileName; //for record
+  featureObj = [featureObj]
+  filter(featureObj, {});
   fs.writeFile(featureObjFilePath, JSON.stringify(featureObj));
 }
 
@@ -43,7 +47,7 @@ const loadDefinitions = require("./StepDefinitionsPathLoader");
  */
 function bundledCode(featureFilePath){
     let codeAsStr = "";
-
+    codeAsStr += "window.__projRootDir = '" + process.cwd() + "';";
     codeAsStr += "window.featureObj= require('"+featureFilePath+"');";
     //codeAsStr += "window.featureObj= require('"+inputJsonFilePath+"');";
     codeAsStr += requireInBrowser( "Globals.js"); 
