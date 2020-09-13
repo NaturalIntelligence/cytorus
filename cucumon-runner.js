@@ -21,7 +21,7 @@ if(process.argv.indexOf("-h") !== -1 || process.argv.indexOf("--help") !== -1){
 let child_process = require('child_process');
 const fs = require('fs');
 const path = require('path');
-const bestFit = require('./src/best-fit');
+const bestFit = require('./cliHelper/best-fit');
 //const cypress = require('cypress')
 const {config,cypressArgs,featureFileParser} = require('./src/ConfigBuilder');
 const filter = require('./src/ScenarioFilter');
