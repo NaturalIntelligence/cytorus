@@ -78,6 +78,7 @@ function findStep(step){
 
 function processArgument(step){
     try{
+        step.arg.raw = step.arg.content;
         if(step.arg.type === "DataTable"){
             step.arg.content = processDataTable(step.arg.instruction, step.arg.content);
         }else{
