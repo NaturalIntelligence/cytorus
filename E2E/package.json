@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
+    "load-cucumber-report": "node cucumber-report-reader.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -12,5 +13,8 @@
     "cucumon-reports": "file:../../cucumon-reports",
     "cypress": "^4.12.1",
     "cypress-cucumon-runner": "file:../cypress-cucumon-runner-1.0.0.tgz"
+  },
+  "devDependencies": {
+    "cucumber-html-reporter": "^5.2.0"
   }
 }
