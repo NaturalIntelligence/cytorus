@@ -9,7 +9,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "cucumon-reports": "file:../../cucumon-reports",
     "cypress": "^4.12.1",
-    "cypress-cucumon-runner": "file:.."
+    "cypress-cucumon-runner": "file:../cypress-cucumon-runner-1.0.0.tgz"
   }
 }

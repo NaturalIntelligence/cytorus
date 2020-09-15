@@ -11,11 +11,10 @@
 // This function is called when a project is opened or re-opened (e.g. due to
 // the project's config changing)
 
-const insProcessor = require('cucumon-instructions-processor');
 const CucumonRunner = require('cypress-cucumon-runner');
 module.exports = (on, config) => {
   const cucumonRunner = new CucumonRunner(config);
-  insProcessor(cucumonRunner.parser);
+  
   //cucumonRunner.enableTasks(on);
 
   //cucumonRunner.reportTo(reportHandler);
@@ -25,9 +24,12 @@ module.exports = (on, config) => {
   //   reportHandler2.apply(this, arguments);
   // })
 
-  on('file:preprocessor', cucumonRunner.filePreProcessor());
   on('task', {
-    'cucumon_log': cucumonRunner.c_logger
+    clilog (message) {
+      console.log(message)
+      return null
+    }
   })
+  on('file:preprocessor', cucumonRunner.filePreProcessor());
 }
 

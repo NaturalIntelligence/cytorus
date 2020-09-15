@@ -1,7 +1,7 @@
 @skip
 Feature: Test various features of cypress cucumon runner framework using math expressions
 
-Scenario Outline: return status 200 when correct data is given otherwise 400
+Scenario Outline: math feature
 
 We test
 * custom examples matrix expander
