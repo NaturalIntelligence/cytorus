@@ -52,7 +52,7 @@ function runSteps(scenario, feature){
         scenario.status = "pending";
         
         window.SC = {};//reset Scenario Context for every test
-        clilog("Running scenario of Feature: " + feature.statement);
+        //clilog("Running scenario of Feature: " + feature.statement);
         cy
         .then( () => {
             //clilog("Before Scenario: " + scenario.statement);
@@ -142,7 +142,7 @@ function runStep(step, position){
 }
 
 function clilog(message){
-    cy.task("clilog", "DEBUG:: " + message);
+    cy.task("cucumon_runner_debug", "DEBUG:: " + message);
 }
 
 function logMe(){
