@@ -17,14 +17,20 @@ const afterEvents = {
     //error: [] //When a step fails
 }
 
-function registerBeforeEvent( eventName, fn){
+function registerBeforeEvent( eventName, fn, instanceRef){
     if(beforeEvents[eventName]){
-        beforeEvents[eventName].push(fn);
+        beforeEvents[eventName].push({
+            fn: fn,
+            ref: instanceRef
+        });
     }
 }
-function registerAfterEvent( eventName, fn){
+function registerAfterEvent( eventName, fn, instanceRef){
     if(afterEvents[eventName]){
-        afterEvents[eventName].push(fn);
+        afterEvents[eventName].push({
+            fn: fn,
+            ref: instanceRef
+        });
     }
 }
 
@@ -34,7 +40,15 @@ function trigger(ba, eventName, arg){
         registry = afterEvents;
     }
     //TODO: test that fn should run in it's own context
-    window.Cypress.Promise.each( registry[eventName] , fn => fn.apply(this, [arg]) );
+    window.Cypress.Promise.each( registry[eventName] , item => {
+        if(item.ref){
+            cy.task("clilog", "Has reference");
+            item.fn.apply(item.ref, [arg]);
+        }else{
+            cy.task("clilog", "On cypress reference");
+            item.fn.apply(this, [arg]);
+        }
+    });
 }
 
 window.Before = registerBeforeEvent;
@@ -42,5 +56,7 @@ window.After = registerAfterEvent;
 //window._c_trigger = trigger;
 
 module.exports = {
+    before: registerBeforeEvent,
+    after: registerAfterEvent,
     trigger : trigger
 }

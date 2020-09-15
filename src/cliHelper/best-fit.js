@@ -5,7 +5,7 @@ function flat(features, groups, scenarios){
         const id = "f"+f_i;
         const scenarioCount = feature.stats.total - feature.stats.skipped;
         scenarios[id] = scenarioCount;
-        if(scenarioCount === 0) continue;
+        //if(scenarioCount === 0) continue;
 
         groups.push({
             id: f_i,

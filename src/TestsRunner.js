@@ -5,59 +5,87 @@ const {findStepDef, forEachFeature, forEachRule, forEachScenarioIn} = require(".
 let currentTest = {};
 module.exports = function( featureArr ){
     describe("Suit", () => {
-        before(() => _E.beforeSuit());
-        after(() => _E.afterSuit());
-        forEachFeature(featureObj, feature => {
+        it("Before Suit Hook", () => {
+            cy.then(() => {
+                _E.beforeSuit()
+            });
+        })
+        forEachFeature(featureArr, feature => {
             describe("Feature: " + feature.statement, () => {
-                before(() => {
-                    logMe("%cFeature: %c" + feature.statement, "color: red; font-size:18px; font-weight: bols;", "color: black; font-size:normal");
-                    _E.beforeFeature(feature);
+                it("Before Feature Hook", () => {
+                    cy.then(() => {
+                        _E.beforeFeature(feature);  
+                    });
                 });
-                after(() => _E.afterFeature(feature));
                 forEachRule(feature, rule => {
                     forEachScenarioIn(rule, scenario => {
                         if(scenario.skip) {
                             //Update pending test count
-                            xit(scenario.keyword + ": "+ scenario.statement, ()=> {}); 
+                            xit(scenario.keyword + ": "+ scenario.statement, ()=> {
+                                //clilog("SKIPPING THIS TEST")
+                            }); 
                             //it.skip(scenario.statement, ()=> {}); 
                             scenario.status = "skipped";
                         }else{
-                            runSteps(scenario);
+                            runSteps(scenario, feature);
                         }
                     });
-                } );
+                });
+                it("After Feature Hook", () => {
+                   cy.then(() => {
+                    _E.afterFeature(feature);
+                   });
+                })
             });
         });
+        it("After Suit Hook", () => {
+            cy.then(() => {
+                _E.afterSuit()
+            });
+        })
     });
 }
 
-function runSteps(scenario){
+function runSteps(scenario, feature){
     it( scenario.keyword + ": "+ scenario.statement, ()=>{
         currentTest = scenario;
         scenario.status = "pending";
         
         window.SC = {};//reset Scenario Context for every test
-
+        clilog("Running scenario of Feature: " + feature.statement);
         cy
-        .then( () => _E.beforeScenario(scenario) )
+        .then( () => {
+            //clilog("Before Scenario: " + scenario.statement);
+            _E.beforeScenario(scenario) 
+        })
         .then( () => {
             logMe("%c"+scenario.keyword+":: %c" + scenario.statement, "color: red; font-size:16px", "color: black; font-size:normal");
+            let lastStep = {
+                status: "pending"
+            };
+            
             for(let i=0; i < scenario.steps.length; i++){
-                if(currentTest.status === "failed" || currentTest.status === "undefined") break; //don't execute rest steps;
+                if(lastStep.status === "failed" || lastStep.status === "undefined") break; //don't execute rest steps;
                 const step = scenario.steps[i];
                 
                 cy
-                    .then(() => _E.beforeStep(step))
                     .then(() => {
+                        //clilog("Before Step: " + step.statement);
+                    }).then(() => {
                         runStep(step, i+1);
+                        //clilog("Status: " + step.status);
                     })
                     .then(() => {
-                        step.status = currentTest.status;
+                        lastStep = step;
+                        //clilog("After Status: " + step.status)
                         step.error_message = currentTest.error_message;
                         _E.afterStep(step)
                     });
             }
+            
         }).then(() => {
+            if(scenario.status === "pending") scenario.status = "passed";
+            //clilog("After Scenario: " + scenario.statement);
             _E.afterScenario(scenario)
         });
     })
@@ -65,10 +93,13 @@ function runSteps(scenario){
 
 function runStep(step, position){
     const fnDetail = findStepDef(step);
+    //clilog("Step: ", step);
 
     if(!fnDetail){
+        //clilog("Step: missing");
         const formattedStatement = " 🤦 ~~**" + step.statement + "**~~";
         decorateDisplay(step,fnDetail, formattedStatement);
+        step.status = "undefined";
         currentTest.status = "undefined";
         step.duration = 0;
         logMe("%cStep "+ position +"::%c 🤦 %c" + step.statement
@@ -82,12 +113,17 @@ function runStep(step, position){
         decorateDisplay(step,fnDetail, "**"+ step.statement +"**");
         const startTime = Date.now();
         try{
-            
+            //clilog("Step: executing");
             fnDetail.fn.apply(this, fnDetail.arg);
             logMe("%cStep "+ position +"::%c " + step.statement, "background-color: black; color:white", "color: inherit;");
         }catch(err){
-            if(currentTest.status !== "undefined") currentTest.status = "failed";
-            currentTest.error_message = err;
+            if(step.status !== "undefined") {
+                //clilog("Step: failed");
+                step.status = "failed";
+                currentTest.status = "failed";
+            }
+            step.duration = 0;
+            step.error_message = err;
             
             logMe("%cStep "+ position +"::%c 🐞 %c" + step.statement
                 , "background-color: black; color:white"
@@ -97,15 +133,21 @@ function runStep(step, position){
         }
         const endTime = Date.now();
         step.duration = endTime - startTime;
-        currentTest.status = "passed";
+        step.status = "passed";
+        //step.status = "passed";
+        //clilog("Step: successful");
     }
     
 
 }
 
+function clilog(message){
+    cy.task("clilog", "DEBUG:: " + message);
+}
+
 function logMe(){
     console.log.apply(this, arguments);
-    //cy.task('cucumon_log', arguments);
+    
 }
 
 const failureReporter = err => {

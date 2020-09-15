@@ -17,20 +17,16 @@ if(process.argv.indexOf("-h") !== -1 || process.argv.indexOf("--help") !== -1){
 
   process.exit(0);
 }
-
 let child_process = require('child_process');
 const fs = require('fs');
 const path = require('path');
-const bestFit = require('./cliHelper/best-fit');
-//const cypress = require('cypress')
+const bestFit = require('./src/cliHelper/best-fit');
 const {config,cypressArgs,featureFileParser} = require('./src/ConfigBuilder');
 const filter = require('./src/ScenarioFilter');
-const buildCypressOptions = require('./cliHelper/CypressOptionsBuilder');
+const buildCypressOptions = require('./src/cliHelper/CypressOptionsBuilder');
+const readCucumonConfig = require('./src/ConfigReader');
+const __projRootDir = process.cwd();
 
-//console.log(config);
-
-//read the feature file
-//const baseSpecsPath = path.join(process.cwd(), "cypress/integration/features");
 const baseSpecsPath = "cypress/integration/features";
 const features = [];
 let specFiles;
@@ -140,15 +136,35 @@ function createInputFile(data, i){
 }
 
 console.log("Building Cypress configuration");
+
 const commonCypressOptions = buildCypressOptions(cypressArgs);
 
+const configFilePath = path.join(__projRootDir, "cucumon.r.js");
+let cucumonConfig = {};
+
+if(fs.existsSync( configFilePath )){
+  cucumonConfig = readCucumonConfig( require(configFilePath) );
+}else{
+  cucumonConfig = readCucumonConfig(); //defaultConfig
+}
+
+for (let i = 0; i < cucumonConfig.reports.length; i++) {
+  if(cucumonConfig.reports[i].init) cucumonConfig.reports[i].init();
+}
+
+fs.writeFileSync(".cucumon/cli.json", JSON.stringify({
+  interactive: cypressArgs[0] === 'open',
+  processes: fileNames.length,
+  cli: true
+}))
 
 console.log("Preparing processes to run tests");
 let done = 0;
 for (let i = 0; i < fileNames.length; i++){
-  let child = child_process.fork( path.join( __dirname, './cliHelper/cucumon-runner-child.js') );
+  let child = child_process.fork( path.join( __dirname, './src/cliHelper/cucumon-runner-child.js') );
   //const fileName = fileNames[i].replace(/.json$/, ".cucumon");
   child.send({
+    cmd: cypressArgs[0],
     cypressConfig: Object.assign({}, {
         //spec: "cypress/integration/features/all.cucumon", 
         spec: fileNames[i] + ".cucumon", 
@@ -162,6 +178,11 @@ for (let i = 0; i < fileNames.length; i++){
       console.log('[parent] received all results');
       //TODO: Show commulicative result
       //Retry logic
+      fs.unlinkSync(".cucumon/cli.json");
+      for (let i = 0; i < cucumonConfig.reports.length; i++) {
+        if(cucumonConfig.reports[i].end) cucumonConfig.reports[i].end();
+      }
+
     }
   });
 }

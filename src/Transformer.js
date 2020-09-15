@@ -3,14 +3,21 @@ const fs = require('fs');
 const path = require('path');
 const filter = require('./ScenarioFilter');
 const {featureFileParser} = require('./ConfigBuilder');
+global.__projRootDir = process.cwd();
 
+let cliOPtions = {};
+const cucumonConfigFilePath = path.join( __projRootDir, '.cucumon/cli.json');
+if(fs.existsSync(cucumonConfigFilePath)){
+  cliOPtions = require( cucumonConfigFilePath );
+}
 
+const configFilePath = path.join(__projRootDir, "cucumon.r.js");
 
 const featureObjFilePath = ".cucumon/featureObj.json";
 const transform = fileName => {
     let content = "";
     function end() {
-      if (fileName.match("group[0-9]+.cucumon")) { //TODO: this will run on "$ npx cypress run"
+      if (cliOPtions.cli && fileName.match("group[0-9]+.cucumon")) {
         fileName = fileName.replace(/.cucumon$/, ".json");
         const transformedCode = bundledCode(fileName);
         this.queue( transformedCode );
@@ -56,6 +63,13 @@ function bundledCode(featureFilePath){
     codeAsStr += "const runTest = " + requireInBrowser("TestsRunner.js");
     codeAsStr += "\n" + loadDefinitions().join("\n"); //include step definitions
 
+    if(cliOPtions.cli && fs.existsSync( configFilePath )){
+      codeAsStr += "const cucumonProjectConfig = require('" + configFilePath + "');";
+      codeAsStr += "const cucumonConfigReader = " + requireInBrowser("ConfigReader.js");
+      codeAsStr += "const cucumonConfig = cucumonConfigReader(cucumonProjectConfig);";
+      codeAsStr += "const integrate = " + requireInBrowser("ConfigIntegrator.js");
+      codeAsStr += "integrate(cucumonConfig);";
+    }
     //Run tests
     codeAsStr += "runTest(featureObj);";
     return codeAsStr;

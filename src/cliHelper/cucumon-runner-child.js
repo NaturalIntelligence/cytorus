@@ -4,7 +4,8 @@ let startTime = Date.now();
 
 process.on('message', function(message) {
   //console.log('[child] received message from server:', message);
-  cypress.run(message.cypressConfig)
+  const cmd = message.cmd;
+  cypress[cmd](message.cypressConfig)
   .then((results) => {
     console.log("completed")
     console.log(Date.now() - startTime);
