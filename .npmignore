@@ -1,0 +1,6 @@
+*.tgh
+E2E
+test
+.vscode
+node_modules
+docs
