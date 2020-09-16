@@ -55,6 +55,7 @@ const loadDefinitions = require("./StepDefinitionsPathLoader");
 function bundledCode(featureFilePath){
     let codeAsStr = "";
     codeAsStr += "window.__projRootDir = '" + process.cwd() + "';";
+    codeAsStr += "window.__featuresPath = '" + path.join(process.cwd(),"cypress/integration/features") + "';";
     codeAsStr += "window.featureObj= require('"+featureFilePath+"');";
     //codeAsStr += "window.featureObj= require('"+inputJsonFilePath+"');";
     codeAsStr += requireInBrowser( "Globals.js"); 
@@ -63,6 +64,9 @@ function bundledCode(featureFilePath){
     codeAsStr += "const runTest = " + requireInBrowser("TestsRunner.js");
     codeAsStr += "\n" + loadDefinitions().join("\n"); //include step definitions
 
+    if(cliOPtions.cli){
+      codeAsStr += requireInBrowser("MinimalReportBuilder.js");
+    }
     if(cliOPtions.cli && fs.existsSync( configFilePath )){
       codeAsStr += "const cucumonProjectConfig = require('" + configFilePath + "');";
       codeAsStr += "const cucumonConfigReader = " + requireInBrowser("ConfigReader.js");

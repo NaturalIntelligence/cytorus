@@ -27,6 +27,10 @@ const buildCypressOptions = require('./src/cliHelper/CypressOptionsBuilder');
 const readCucumonConfig = require('./src/ConfigReader');
 const __projRootDir = process.cwd();
 
+if(cypressArgs[0] !== "open" && cypressArgs[0] !== "run"){
+  console.log("Invalid action. Either user 'open' or 'run'");
+  process.exit(1);
+}
 const baseSpecsPath = "cypress/integration/features";
 const features = [];
 let specFiles;
@@ -79,6 +83,9 @@ function createFileName(i){
 console.log("Clearing "+cacheLocation+" for this run");
 fs.rmdirSync(cacheLocation, { recursive: true});
 fs.mkdirSync(cacheLocation, { recursive: true});
+fs.rmdirSync(".cucumon", { recursive: true});
+fs.mkdirSync(".cucumon");
+fs.mkdirSync(".cucumon/minimal-report", { recursive: true});
 
 // function rmDir(dir) {
 //   if (fs.existsSync(dir)) {
@@ -98,12 +105,12 @@ console.log("Analyzing tests to run in parallel");
 
 
 let fileNames = [];
-if(config.dist && config.dist.limit > 1 && features.length > 1){
+if(cypressArgs[0] !== "open" && config.dist && config.dist.limit > 1 && features.length > 1){
   //Group features based on number of scenarios
   const bins = bestFit(features,config.dist.limit);
   
   //save it in multiple files
-  console.log("I feel that " + bins.length + " processes are fine to run in parallel 👍");
+  console.log("I feel that " + bins.length + " processes are fine to run in parallel");
   fileNames = Array(bins.length);
   for (let i = 0; i < bins.length; i++) {
     const featureIndexes = bins[i].indexes;
@@ -158,6 +165,8 @@ fs.writeFileSync(".cucumon/cli.json", JSON.stringify({
   cli: true
 }))
 
+emptyDirSync(".cucumon/minimal-report");
+
 console.log("Preparing processes to run tests");
 let done = 0;
 for (let i = 0; i < fileNames.length; i++){
@@ -190,3 +199,9 @@ for (let i = 0; i < fileNames.length; i++){
 
 
 //Pass file name as message from server to child which will be passed as env variable
+function emptyDirSync(location) {
+  const files = fs.readdirSync(location); 
+  for (const file of files) {
+      fs.unlinkSync(path.join(location, file));
+  }
+}
