@@ -21,17 +21,14 @@ function filterByPosition(featureObj, arr, include){
             total: 0
         }
         forEachRule(feature, rule => {
-            forEachScenarioIn( rule , scenario => {
-                if(include){
-                    if(arr.indexOf(positionCounter) === -1) {
-                        scenario.skip= true;
-                        stats.skipped +=1;
-                    }
-                }else{
-                    if(arr.indexOf(positionCounter) !== -1) {
-                        scenario.skip= true; 
-                        stats.skipped +=1;
-                    }
+            forEachScenarioIn( rule , (scenario, i, j) => {
+                const contain = contains(arr, s_i, e_i);
+                if(include && !contain){
+                    scenario.skip= true;
+                    stats.skipped +=1;
+                }else if(!include && contain) {
+                    scenario.skip= true; 
+                    stats.skipped +=1;
                 }
                 positionCounter++;
             })
@@ -39,7 +36,11 @@ function filterByPosition(featureObj, arr, include){
         stats.total = positionCounter - 1;
         feature.stats = stats;
     });
-    
+}
+
+function contains(arr, s_i, e_i){
+    const position = s_i+ (e_i/10);
+    return arr.indexOf(s_i) !== -1 || arr.indexOf(position) !== -1;
 }
 
 function filterByTagExpression(featureObj, tagExpression){

@@ -108,10 +108,10 @@ function forEachScenarioIn(rule, cb){
         const scenario = rule.scenarios[i];
         if(scenario.examples){
             for(let expanded_i=0; expanded_i < scenario.expanded.length; expanded_i++){
-                cb(scenario.expanded[expanded_i]);
+                cb(scenario.expanded[expanded_i], i+1, expanded_i+1);
             }
         }else{
-            cb(scenario);
+            cb(scenario, i+1, 0);
         }
     }
 }
