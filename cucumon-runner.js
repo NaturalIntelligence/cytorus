@@ -15,11 +15,10 @@ let child_process = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const bestFit = require('./src/cliHelper/best-fit');
-const {config,cypressArgs} = require('./src/ConfigBuilder');
-const filter = require('./src/ScenarioFilter');
+const {config,cypressArgs} = require('./src/cliHelper/CliArgsReader');
 const buildCypressOptions = require('./src/cliHelper/CypressOptionsBuilder');
-const readProjConfig = require('./src/ConfigReader');
-const __projRootDir = process.cwd();
+const readProjConfig = require('./src/cliHelper/ProjectConfigReader');
+const filter = require('./src/ScenarioFilter');
 const { PATHS: _P, FNs: _F } = require("./Constants");
 
 const features = [];
