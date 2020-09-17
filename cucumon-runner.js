@@ -1,44 +1,35 @@
 #!/usr/bin/env node
 
 if(process.argv.indexOf("-h") !== -1 || process.argv.indexOf("--help") !== -1){
-  console.log(`
-  Following options are supported. You can also pass cypress run command arguments.
-
-  --spec <spec-file>              comma sperated path of spec files without space
-  --tags <tag-expression>         tag expression to run particular scenarios
-  --include <scenario-positions>  comma sperated list of scenario positions to run the tests
-  --exclude <scenario-positions>  comma sperated list of scenario positions to skip while running the tests
-  --specs-config <file.json>      json file path containing the configuration to run the tests.
-  --dist <false>                  Set it to true to not run tests in parallel
-  --dist-limit <number>           Number of parallel processes to run the tests
-
-  if you pass '--parallel' option, then '--dist' will be set to false.
-  `);
-
+  console.log(require('./src/cliHelper/helpContent'));
   process.exit(0);
+}else if(process.argv[2] !== "open" && process.argv[2] !== "run"){
+  console.log("Invalid action. Either user 'open' or 'run' instead of '"+process.argv[2]+"'");
+  process.exit(1);
 }
+
+
+const Cucumon = require("cucumon");
+
 let child_process = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const bestFit = require('./src/cliHelper/best-fit');
-const {config,cypressArgs,featureFileParser} = require('./src/ConfigBuilder');
+const {config,cypressArgs} = require('./src/ConfigBuilder');
 const filter = require('./src/ScenarioFilter');
 const buildCypressOptions = require('./src/cliHelper/CypressOptionsBuilder');
-const readCucumonConfig = require('./src/ConfigReader');
+const readProjConfig = require('./src/ConfigReader');
 const __projRootDir = process.cwd();
+const { PATHS: _P, FNs: _F } = require("./Constants");
 
-if(cypressArgs[0] !== "open" && cypressArgs[0] !== "run"){
-  console.log("Invalid action. Either user 'open' or 'run'");
-  process.exit(1);
-}
-const baseSpecsPath = "cypress/integration/features";
 const features = [];
 let specFiles;
+const cucumon = new Cucumon({clubBgSteps : true});
 //TODO: support regex to select multiple files or all the files from a folder
 for (let s_i = 0; s_i < config.specs.length; s_i++) {
   const spec = config.specs[s_i];
   if(!spec.files){
-    specFiles = travers(baseSpecsPath);
+    specFiles = travers(_P.FEATURES_PATH);
   }else{
     specFiles = spec.files.split(",");
   }
@@ -49,12 +40,16 @@ for (let s_i = 0; s_i < config.specs.length; s_i++) {
     const fileContent = fs.readFileSync(specFilePath).toString();
     if(!fileContent.startsWith("#!")){
       console.log("Parsing:", specFilePath);
-      const featureObj = featureFileParser.parse( fileContent );
+      const featureObj = cucumon.parse( fileContent );
       filter( [featureObj] , spec);
       featureObj.fileName = specFilePath;
       features.push( featureObj );
     }
   }
+}
+
+function readSpecFiles(givenPath){
+
 }
 
 function travers(dir){
@@ -80,59 +75,43 @@ const cacheLocation = "cypress/integration/cucumon-cache/";
 function createFileName(i){
   return cacheLocation + "group"+i;
 }
-console.log("Clearing "+cacheLocation+" for this run");
-fs.rmdirSync(cacheLocation, { recursive: true});
-fs.mkdirSync(cacheLocation, { recursive: true});
-fs.rmdirSync(".cucumon", { recursive: true});
-fs.mkdirSync(".cucumon");
-fs.mkdirSync(".cucumon/minimal-report", { recursive: true});
+setupWorkSpace();
 
-// function rmDir(dir) {
-//   if (fs.existsSync(dir)) {
-//     fs.readdirSync(dir).forEach((file, index) => {
-//       const curPath = path.join(dir, file);
-//       if (fs.lstatSync(curPath).isDirectory()) { // recurse
-//         rmDir(curPath);
-//       } else { // delete file
-//         fs.unlinkSync(curPath);
-//       }
-//     });
-//     fs.rmdirSync(dir);
-//   }
-// };
 
 console.log("Analyzing tests to run in parallel");
 
 
-let fileNames = [];
+let cachedFeatureFileNames = [];
 if(cypressArgs[0] !== "open" && config.dist && config.dist.limit > 1 && features.length > 1){
   //Group features based on number of scenarios
   const bins = bestFit(features,config.dist.limit);
   
   //save it in multiple files
   console.log("I feel that " + bins.length + " processes are fine to run in parallel");
-  fileNames = Array(bins.length);
+  cachedFeatureFileNames = Array(bins.length);
   for (let i = 0; i < bins.length; i++) {
     const featureIndexes = bins[i].indexes;
     const group = Array(featureIndexes.length);
     for (let f_i = 0; f_i < featureIndexes.length; f_i++) {
       group[f_i] = features[featureIndexes[f_i]];
     }
-    fileNames[i] = createInputFile(group, i);
+    cachedFeatureFileNames[i] = createInputFile(group, i);
   }
 }else{
-  fileNames = [ createInputFile(features, 0)];
+  cachedFeatureFileNames = [ createInputFile(features, 0)];
 }
 
 function createInputFile(data, i){
-  const fileName = createFileName(i);
-  fs.writeFile( fileName + ".json", JSON.stringify(data), err => {
+  
+  fs.writeFile( _F.CACHED_JSON_FILE(i), JSON.stringify(data), err => {
     if(err){
       console.log("Not able to write processings files in .cucumon folder on the root of the project");
       throw err;
     }
   });
-  fs.writeFile(fileName + ".cucumon", "" , err => {
+  const fileName = _F.CACHED_FEATURE_FILE(i);
+
+  fs.writeFile(fileName, "" , err => {
     if(err){
       console.log("Not able to write processings files in .cucumon folder on the root of the project");
       throw err;
@@ -146,62 +125,56 @@ console.log("Building Cypress configuration");
 
 const commonCypressOptions = buildCypressOptions(cypressArgs);
 
-const configFilePath = path.join(__projRootDir, "cucumon.r.js");
-let cucumonConfig = {};
-
-if(fs.existsSync( configFilePath )){
-  cucumonConfig = readCucumonConfig( require(configFilePath) );
-}else{
-  cucumonConfig = readCucumonConfig(); //defaultConfig
-}
-
-for (let i = 0; i < cucumonConfig.reports.length; i++) {
-  if(cucumonConfig.reports[i].init) cucumonConfig.reports[i].init();
-}
+let projConfig = _F.readIfExist( _F.ABS( _P.PROJ_CONFIG_FILENAME ) ,{});
+projConfig = readProjConfig(projConfig);
+projConfig.init();
 
 fs.writeFileSync(".cucumon/cli.json", JSON.stringify({
   interactive: cypressArgs[0] === 'open',
-  processes: fileNames.length,
+  processes: cachedFeatureFileNames.length,
   cli: true
 }))
 
-emptyDirSync(".cucumon/minimal-report");
+
 
 console.log("Preparing processes to run tests");
 let done = 0;
-for (let i = 0; i < fileNames.length; i++){
+for (let i = 0; i < cachedFeatureFileNames.length; i++){
   let child = child_process.fork( path.join( __dirname, './src/cliHelper/cucumon-runner-child.js') );
   //const fileName = fileNames[i].replace(/.json$/, ".cucumon");
   child.send({
     cmd: cypressArgs[0],
     cypressConfig: Object.assign({}, {
         //spec: "cypress/integration/features/all.cucumon", 
-        spec: fileNames[i] + ".cucumon", 
+        spec: cachedFeatureFileNames[i], 
         //"quiet": true
       } , commonCypressOptions)
   });
   child.on('message', function(message) {
     console.log('[parent] received message from child:', message);
     done++;
-    if (done === fileNames.length) {
-      console.log('[parent] received all results');
+    if (done === cachedFeatureFileNames.length) {
+      console.log('Completed all tests');
       //TODO: Show commulicative result
       //Retry logic
-      fs.unlinkSync(".cucumon/cli.json");
-      for (let i = 0; i < cucumonConfig.reports.length; i++) {
-        if(cucumonConfig.reports[i].end) cucumonConfig.reports[i].end();
-      }
-
+      postRun();
     }
   });
 }
 
+function postRun(){
+  //clear cli.json
+  //run end test event in common 
 
+  fs.unlinkSync(".cucumon/cli.json");
+  projConfig.end();
+}
 
-//Pass file name as message from server to child which will be passed as env variable
-function emptyDirSync(location) {
-  const files = fs.readdirSync(location); 
-  for (const file of files) {
-      fs.unlinkSync(path.join(location, file));
-  }
+function setupWorkSpace(){
+  fs.rmdirSync( _P.FEATURES_CACHE     , { recursive: true});
+  fs.rmdirSync( _P.WD                 , { recursive: true});
+  
+  fs.mkdirSync( _P.FEATURES_CACHE     , { recursive: true});
+  fs.mkdirSync( _P.MINIMAL_RESULT_PATH, { recursive: true});
+  fs.mkdirSync( _P.DETAIL_RESULT_PATH , { recursive: true});
 }

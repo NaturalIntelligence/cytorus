@@ -1,6 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 
+console.log("Processing CLI arguments");
+
 let config = {
   parser: {},
   dist: {}
@@ -23,7 +25,7 @@ let filterConfig = {};
     }else if(arg === "--exclude"){
       filterConfig.exclude = args[++i].split(",");
     }else if(arg === "--specs-config"){
-      filterConfig.specs = require( args[++i] );
+      config.specs = require( args[++i] );
     }else if(arg === "--parallel"){
       config.dist = false;
     }else if(arg === "--dist"){
@@ -44,41 +46,38 @@ let filterConfig = {};
     }
   }
 
-if(config.dist){
-  const cpuCount = require('os').cpus().length;
-  if(!config.dist.limit){
-    config.dist.limit = cpuCount > 1 ? cpuCount - 1 : 1;
-  }else if(config.dist.limit >= cpuCount){
-    config.dist.limit = cpuCount;
+  if(!config.specs){
+    config.specs = [{
+      files: filterConfig.specs,
+      tags: filterConfig.tags,
+      include: filterConfig.include,
+      exclude: filterConfig.exclude,
+    }];
   }
-}else{
-  config.dist.limit = 1;
-}
 
-if(!config.specs){
-  config.specs = [{
-    files: filterConfig.specs,
-    tags: filterConfig.tags,
-    include: filterConfig.include,
-    exclude: filterConfig.exclude,
-  }];
-}
+setParallelProcessLimit(config);
+
+
 //End read CLI arguments
 
-//setup for parsing feature files
-if (!fs.existsSync(".cucumon")){
-  fs.mkdirSync(".cucumon");
-}else{
-  //clear .cucumon folder
+/**
+ * Set optimal count for processes to run parallel based on available CPUs
+ * @param {object} config 
+ */
+function setParallelProcessLimit(config){
+  if(config.dist){
+    const cpuCount = require('os').cpus().length;
+    if(!config.dist.limit){
+      config.dist.limit = cpuCount > 1 ? cpuCount - 1 : 1;
+    }else if(config.dist.limit >= cpuCount){
+      config.dist.limit = cpuCount;
+    }
+  }else{
+    config.dist.limit = 1;
+  }
 }
-
-const Cucumon = require("cucumon");
-const featureFileParser =  new Cucumon({
-  clubBgSteps : true,
-});
 
 module.exports = {
   config: config,
-  cypressArgs: cypressArgs,
-  featureFileParser: featureFileParser
+  cypressArgs: cypressArgs
 };

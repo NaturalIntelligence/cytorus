@@ -1,19 +1,13 @@
+const Cucumon = require("cucumon");
 const through = require("through");
 const fs = require('fs');
 const path = require('path');
 const filter = require('./ScenarioFilter');
-const {featureFileParser} = require('./ConfigBuilder');
-global.__projRootDir = process.cwd();
+const { PATHS: _P, FNs: _F } = require("../Constants");
 
-let cliOPtions = {};
-const cucumonConfigFilePath = path.join( __projRootDir, '.cucumon/cli.json');
-if(fs.existsSync(cucumonConfigFilePath)){
-  cliOPtions = require( cucumonConfigFilePath );
-}
 
-const configFilePath = path.join(__projRootDir, "cucumon.r.js");
+let cliOPtions = _F.readIfExist( _F.ABS(_P.CLI_ARG_PATH), {});
 
-const featureObjFilePath = ".cucumon/featureObj.json";
 const transform = fileName => {
     let content = "";
     function end() {
@@ -23,7 +17,7 @@ const transform = fileName => {
         this.queue( transformedCode );
       }else if (fileName.endsWith(".feature") && !content.startsWith("#!")) {
         parseFeatureFile(content, fileName);
-        const transformedCode = bundledCode(path.resolve(featureObjFilePath));
+        const transformedCode = bundledCode(_P.SERIALIZED_FEATURE_PATH);
         this.queue(transformedCode);
       } else {
         this.queue(content);
@@ -38,12 +32,14 @@ const transform = fileName => {
   };
 
 function parseFeatureFile(data,fileName){
-  let featureObj = featureFileParser.parse(data);
-  console.log("parsing feature file");
+  !fs.existsSync(_P.WD) || fs.mkdirSync(_P.WD);
+
+  const cucumon = new Cucumon({clubBgSteps : true});
+  let featureObj = cucumon.parse(data);
   featureObj.fileName = fileName; //for record
-  featureObj = [featureObj]
+  featureObj = [featureObj];
   filter(featureObj, {});
-  fs.writeFile(featureObjFilePath, JSON.stringify(featureObj));
+  fs.writeFile(_P.SERIALIZED_FEATURE_PATH, JSON.stringify(featureObj));
 }
 
 const loadDefinitions = require("./StepDefinitionsPathLoader");
@@ -52,12 +48,10 @@ const loadDefinitions = require("./StepDefinitionsPathLoader");
  * Bundle all required code including step defenitions, and test code generator
  * @param {string} featureFileData 
  */
-function bundledCode(featureFilePath){
+function bundledCode(serializedFeaturePath){
     let codeAsStr = "";
-    codeAsStr += "window.__projRootDir = '" + process.cwd() + "';";
-    codeAsStr += "window.__featuresPath = '" + path.join(process.cwd(),"cypress/integration/features") + "';";
-    codeAsStr += "window.featureObj= require('"+featureFilePath+"');";
-    //codeAsStr += "window.featureObj= require('"+inputJsonFilePath+"');";
+    codeAsStr += "window.__projRootDir = '" + __projRootDir + "';";
+    codeAsStr += "window.featureObj= require('"+serializedFeaturePath+"');";
     codeAsStr += requireInBrowser( "Globals.js"); 
     codeAsStr += requireInBrowser( "Events.js");
     codeAsStr += "window.Repository = " + requireInBrowser("Repository.js");
@@ -65,14 +59,7 @@ function bundledCode(featureFilePath){
     codeAsStr += "\n" + loadDefinitions().join("\n"); //include step definitions
 
     if(cliOPtions.cli){
-      codeAsStr += requireInBrowser("MinimalReportBuilder.js");
-    }
-    if(cliOPtions.cli && fs.existsSync( configFilePath )){
-      codeAsStr += "const cucumonProjectConfig = require('" + configFilePath + "');";
-      codeAsStr += "const cucumonConfigReader = " + requireInBrowser("ConfigReader.js");
-      codeAsStr += "const cucumonConfig = cucumonConfigReader(cucumonProjectConfig);";
-      codeAsStr += "const integrate = " + requireInBrowser("ConfigIntegrator.js");
-      codeAsStr += "integrate(cucumonConfig);";
+      codeAsStr += requireInBrowser("ResultSaver.js");
     }
     //Run tests
     codeAsStr += "runTest(featureObj);";

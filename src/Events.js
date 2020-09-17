@@ -42,10 +42,8 @@ function trigger(ba, eventName, arg){
     //TODO: test that fn should run in it's own context
     window.Cypress.Promise.each( registry[eventName] , item => {
         if(item.ref){
-            cy.task("clilog", "Has reference");
             item.fn.apply(item.ref, [arg]);
         }else{
-            cy.task("clilog", "On cypress reference");
             item.fn.apply(this, [arg]);
         }
     });

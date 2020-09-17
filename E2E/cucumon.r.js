@@ -2,18 +2,6 @@ const CucumerReporter = require("cucumon-reports/cucumber");
 const fs = require('fs');
 const path = require('path');
 
-const emptyDirAsync = location => {
-    fs.readdir(location, (err, files) => {
-        if (err) throw err;
-      
-        for (const file of files) {
-          fs.unlink(path.join(location, file), err => {
-            if (err) throw err;
-          });
-        }
-    });
-}
-
 const emptyDirSync = location => {
     const files = fs.readdirSync(location); 
     for (const file of files) {
@@ -21,39 +9,25 @@ const emptyDirSync = location => {
     }
 }
 
-const cucumerReporteLocation = "cypress/reports/cucumber";
-const cucumerReporter = new CucumerReporter(cucumerReporteLocation);
+const cucumerReportsPath = "cypress/reports/cucumber";
+const cucumerReporter = new CucumerReporter(cucumerReportsPath);
 
 module.exports = {
-    // common:{
-    //     //dashboard: "https://cucumon-dashboard.com",
-            // init: function() {},
-            // end: function() {},
-    // },
-    // coverage:[
-    //     {
-    //         files: ["cypress/integration/features/payment/**/*.feature" ],
-    //         threshold: 98
-    //     },{
-    //         tagExpression: "@non-connected && @premium",
-    //         //binary: true
-    //     },{
-    //         threshold: 50
-    //     }
-    // ],
-    reports: [{
-        hooks:[{
-            when: "after",
-            for: "feature",
-            handler: cucumerReporter.report,
-            ref: cucumerReporter
-        }],
-        init: function(){
-            emptyDirSync(cucumerReporteLocation);
-            console.log("It'll be logged in the starting of tests");
-        },
-        end: function(){
-            console.log("It'll be logged in the ending of tests");
-        }
-    }]
+    init: function(){
+        emptyDirSync(cucumerReportsPath);
+    },
+    end: async function(){
+        await cucumerReporter.report();
+    },
+    success:[{
+            tagExpression: "@non-connected && @premium",
+        },{
+            threshold: 50
+        },{
+            map: [{
+                fileName: "",
+                pass: [1,2,4],
+                fail: [3,7,5]
+            }]
+        }]
 }
