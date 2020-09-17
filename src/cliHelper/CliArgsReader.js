@@ -1,18 +1,29 @@
-const fs = require('fs');
-const path = require('path');
+console.log("Checking CLI arguments");
 
-console.log("Processing CLI arguments");
+/**
+ * Set optimal count for processes to run parallel based on available CPUs
+ * @param {object} config 
+ */
+function setParallelProcessLimit(config){
+  if(config.dist){
+    const cpuCount = require('os').cpus().length;
+    if(!config.dist.limit){
+      config.dist.limit = cpuCount > 1 ? cpuCount - 1 : 1;
+    }else if(config.dist.limit >= cpuCount){
+      config.dist.limit = cpuCount;
+    }
+  }else{
+    config.dist.limit = 1;
+  }
+}
 
-let config = {
-  parser: {},
-  dist: {}
-};
-let filterConfig = {};
-
-//Read CLI arguments
-  const args = process.argv;
-  const cypressArgs = [];
-  cypressArgs.push(args[2]);
+function buildConfig(args){
+  let config = {
+    parser: {},
+    dist: {}
+  };
+  let filterConfig = {};
+  const cypressArgs = [args[2]];
 
   for (let i = 3; i < args.length; i++) {
     const arg = args[i];
@@ -55,29 +66,12 @@ let filterConfig = {};
     }];
   }
 
+  config.cypress = cypressArgs;
+  return config
+}
+
+const config = buildConfig(process.argv);
 setParallelProcessLimit(config);
 
 
-//End read CLI arguments
-
-/**
- * Set optimal count for processes to run parallel based on available CPUs
- * @param {object} config 
- */
-function setParallelProcessLimit(config){
-  if(config.dist){
-    const cpuCount = require('os').cpus().length;
-    if(!config.dist.limit){
-      config.dist.limit = cpuCount > 1 ? cpuCount - 1 : 1;
-    }else if(config.dist.limit >= cpuCount){
-      config.dist.limit = cpuCount;
-    }
-  }else{
-    config.dist.limit = 1;
-  }
-}
-
-module.exports = {
-  config: config,
-  cypressArgs: cypressArgs
-};
+module.exports = config;

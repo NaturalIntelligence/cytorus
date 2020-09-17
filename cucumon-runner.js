@@ -15,7 +15,7 @@ let child_process = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const bestFit = require('./src/cliHelper/best-fit');
-const {config,cypressArgs} = require('./src/cliHelper/CliArgsReader');
+const cli = require('./src/cliHelper/CliArgsReader');
 const buildCypressOptions = require('./src/cliHelper/CypressOptionsBuilder');
 const readProjConfig = require('./src/cliHelper/ProjectConfigReader');
 const filter = require('./src/ScenarioFilter');
@@ -25,8 +25,8 @@ const features = [];
 let specFiles;
 const cucumon = new Cucumon({clubBgSteps : true});
 //TODO: support regex to select multiple files or all the files from a folder
-for (let s_i = 0; s_i < config.specs.length; s_i++) {
-  const spec = config.specs[s_i];
+for (let s_i = 0; s_i < cli.specs.length; s_i++) {
+  const spec = cli.specs[s_i];
   if(!spec.files){
     specFiles = travers(_P.FEATURES_PATH);
   }else{
@@ -81,9 +81,9 @@ console.log("Analyzing tests to run in parallel");
 
 
 let cachedFeatureFileNames = [];
-if(cypressArgs[0] !== "open" && config.dist && config.dist.limit > 1 && features.length > 1){
+if(cli.cypress[0] !== "open" && cli.dist && cli.dist.limit > 1 && features.length > 1){
   //Group features based on number of scenarios
-  const bins = bestFit(features,config.dist.limit);
+  const bins = bestFit(features,cli.dist.limit);
   
   //save it in multiple files
   console.log("I feel that " + bins.length + " processes are fine to run in parallel");
@@ -122,14 +122,14 @@ function createInputFile(data, i){
 
 console.log("Building Cypress configuration");
 
-const commonCypressOptions = buildCypressOptions(cypressArgs);
+const commonCypressOptions = buildCypressOptions(cli.cypress);
 
 let projConfig = _F.readIfExist( _F.ABS( _P.PROJ_CONFIG_FILENAME ) ,{});
 projConfig = readProjConfig(projConfig);
 projConfig.init();
 
 fs.writeFileSync(".cucumon/cli.json", JSON.stringify({
-  interactive: cypressArgs[0] === 'open',
+  interactive: cli.cypress[0] === 'open',
   processes: cachedFeatureFileNames.length,
   cli: true
 }))
@@ -142,7 +142,7 @@ for (let i = 0; i < cachedFeatureFileNames.length; i++){
   let child = child_process.fork( path.join( __dirname, './src/cliHelper/cucumon-runner-child.js') );
   //const fileName = fileNames[i].replace(/.json$/, ".cucumon");
   child.send({
-    cmd: cypressArgs[0],
+    cmd: cli.cypress[0],
     cypressConfig: Object.assign({}, {
         //spec: "cypress/integration/features/all.cucumon", 
         spec: cachedFeatureFileNames[i], 
