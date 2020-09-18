@@ -13,26 +13,26 @@ function evalTestResult(strategies, minimalReport){
             const count = getSuccessCount(minimalReport, selector);
             if(typeof strategy.max === 'number'){
                 if(count.success > strategy.max) {
-                    return fail(count, strategy, "the expected maximum successful scenarios are crossed.")
+                    return fail(count, strategy, "the expected maximum successful scenarios "+ strategy.max+" is lesser than " + count.success);
                 }
             }else if(typeof strategy.max === 'string'){
                 const expectedPercentage = +strategy.max.substr(0,strategy.max.length-1);
-                const actualPercentage = (count.success*(count.success+count.failure))/100;
+                const actualPercentage = (count.success*100)/(count.success+count.failure);
                 if(actualPercentage > expectedPercentage) {
-                    return fail(count, strategy, "the expected maximum successful scenarios are crossed.")
+                    return fail(count, strategy, "the expected maximum successful scenarios "+ strategy.max+" is lesser than " + actualPercentage + "%");
                 }
             }else if(typeof strategy.threshold === 'number'){
                 if(count.success < strategy.threshold) {
-                    return fail(count, strategy, "the expected threshold is not met.")
+                    return fail(count, strategy, "the expected threshold "+strategy.threshold+" is greater than "+ count.success);
                 }
             }else{
                 let expectedPercentage = 100;
                 if(typeof strategy.threshold === 'string'){
                     expectedPercentage = +strategy.threshold.substr(0,strategy.threshold.length-1);
                 }
-                const actualPercentage = (count.success*(count.success+count.failure))/100;
+                const actualPercentage = (count.success*100)/(count.success+count.failure);
                 if(actualPercentage < expectedPercentage) {
-                    return fail(count, strategy, "the expected threshold is not met.")
+                    return fail(count, strategy, "the expected threshold "+strategy.threshold+" is greater than "+ actualPercentage + "%");
                 }
             }
         }
@@ -42,7 +42,7 @@ function evalTestResult(strategies, minimalReport){
 
 function fail(count, strategy, message){
     if(count){
-        console.log("Number of passing scenarios are", count.success);
+        console.log("Number of matching passing scenarios are", count.success, "out of", count.success+ count.failure);
     }
     console.log("Failing Test for following strategy", strategy);
     console.log("Because", message);
