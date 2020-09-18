@@ -18,7 +18,8 @@ if(process.argv.indexOf("-h") !== -1 || process.argv.indexOf("--help") !== -1){
   const parseSpecs = require('./src/cliHelper/SpecsReader');
   const { PATHS: _P, FNs: _F } = require("./Constants");
   const distributeAndSaveSpecs = require('./src/cliHelper/ParallelProcessAnalyzer');
-  
+  const evalTestResult = require("./src/cliHelper/TestResultEvaluator");
+
   setupWorkSpace();
   
   let cachedSpecs = distributeAndSaveSpecs(fromCli, parseSpecs(fromCli));
@@ -64,8 +65,20 @@ if(process.argv.indexOf("-h") !== -1 || process.argv.indexOf("--help") !== -1){
  
   
   function postRun(){
+    let testStatus = true;
+    const minimalReports = fs.readdirSync( _P.MINIMAL_RESULT_PATH ); 
+    const minimalCombinedReport = [];
+    for (const file of minimalReports) {
+      minimalCombinedReport.push( require( _F.ABS(path.join(_P.MINIMAL_RESULT_PATH , file))) );
+    }
+  
+    if(!evalTestResult(projConfig.success, minimalCombinedReport)){
+      testStatus = false;
+    }
+
     fs.unlinkSync(_P.CLI_ARG_PATH);
     projConfig.end();
+    if(!testStatus) process.exitCode = 1;
   }
 
   /**
@@ -78,6 +91,7 @@ if(process.argv.indexOf("-h") !== -1 || process.argv.indexOf("--help") !== -1){
     fs.mkdirSync( _P.FEATURES_CACHE     , { recursive: true});
     fs.mkdirSync( _P.MINIMAL_RESULT_PATH, { recursive: true});
     fs.mkdirSync( _P.DETAIL_RESULT_PATH , { recursive: true});
+
   }
 
 }

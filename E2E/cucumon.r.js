@@ -23,11 +23,5 @@ module.exports = {
             tagExpression: "@non-connected && @premium",
         },{
             threshold: 50
-        },{
-            map: [{
-                fileName: "",
-                pass: [1,2,4],
-                fail: [3,7,5]
-            }]
         }]
 }
