@@ -28,6 +28,7 @@ const objProperties = {
 }
 
 function cliArgsToObj(args){
+    console.log("Building Cypress configuration");
     const options = {};
     for (let i = 0; i < args.length; i++) {
         const arg = args[i];

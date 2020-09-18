@@ -1,5 +1,6 @@
 console.log("Checking CLI arguments");
 
+const buildCypressOptions = require('./CypressOptionsBuilder');
 /**
  * Set optimal count for processes to run parallel based on available CPUs
  * @param {object} config 
@@ -66,7 +67,7 @@ function buildConfig(args){
     }];
   }
 
-  config.cypress = cypressArgs;
+  config.cypress = buildCypressOptions(cypressArgs);
   return config
 }
 
