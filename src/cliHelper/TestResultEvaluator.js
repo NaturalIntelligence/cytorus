@@ -4,17 +4,19 @@ function evalTestResult(strategies, minimalReport){
     
     for (let i = 0; i < strategies.length; i++) {
         const strategy = strategies[i];
+        
         if(strategy.when && strategy.when() === false) continue; //skip this strategy
 
         if( strategy.pass || strategy.fail){
-            if(testForPositions(minimalReport, strategy)) continue;
-            else return false;
+            const result = testForPositions(minimalReport, strategy);
+            if(result === true) continue;
+            else return result;
         }else{
             const selector = getSelector(strategy);
             const count = getCount(minimalReport, selector);
             if(typeof strategy.max === 'number'){
                 if(count.success > strategy.max) {
-                    return fail(count, strategy, "the expected maximum successful scenarios "+ strategy.max+" are lesser than " + count.success);
+                    return { strategy: strategy, message: "the expected maximum successful scenarios "+ strategy.max+" are lesser than " + count.success};
                 }
             }else if(typeof strategy.max === 'string'){
                 const expectedPercentage = +strategy.max.substr(0,strategy.max.length-1);
@@ -22,11 +24,11 @@ function evalTestResult(strategies, minimalReport){
                 
                 const actualPercentage = (count.success*100)/(count.success+count.failure);
                 if(actualPercentage > expectedPercentage) {
-                    return fail(count, strategy, "the expected maximum successful scenarios "+ strategy.max+" are lesser than " + actualPercentage + "%");
+                    return { strategy: strategy, message: "the expected maximum successful scenarios "+ strategy.max+" are lesser than " + actualPercentage + "%"};
                 }
             }else if(typeof strategy.min === 'number'){
                 if(count.success < strategy.min) {
-                    return fail(count, strategy, "the expected minimum successful scenarios "+strategy.min+" are greater than "+ count.success);
+                    return { strategy: strategy, message: "the expected minimum successful scenarios "+strategy.min+" are greater than "+ count.success};
                 }
             }else{
                 let expectedPercentage = 100;
@@ -36,9 +38,9 @@ function evalTestResult(strategies, minimalReport){
                 const total = count.success+count.failure;
                 const actualPercentage = (count.success*100)/total;
                 if(isNaN(actualPercentage) && expectedPercentage !== 0){
-                    return fail(count, strategy, "the expected minimum successful scenarios are "+strategy.min+" but found no scenario");
+                    return { strategy: strategy, message: "the expected minimum successful scenarios are "+strategy.min+" but found no scenario"};
                 }else if(actualPercentage < expectedPercentage) {
-                    return fail(count, strategy, "the expected minimum successful scenarios "+strategy.min+" are greater than "+ actualPercentage + "%");
+                    return { strategy: strategy, message: "the expected minimum successful scenarios "+strategy.min+" are greater than "+ actualPercentage + "%"};
                 }
             }
         }
@@ -47,11 +49,9 @@ function evalTestResult(strategies, minimalReport){
 }
 
 function fail(count, strategy, message){
-    if(count){
-        console.log("Number of matching passing scenarios are", count.success, "out of", count.success+ count.failure);
-    }
-    console.log("❌ Failing Test for following strategy", strategy);
-    console.log("Because", message);
+    // console.log("❌ Failing Test for following strategy", strategy);
+    // console.log("Because", message);
+    console.log(climsg);
     return false;
 }
 
@@ -85,13 +85,13 @@ function testForPositions(minimalReport, strategy){
             if(strategy.pass){
                 const matchToPassed = matchPosition(strategy.pass, scenario.position.scenario, scenario.position.example);
                 if(matchToPassed && scenario.status !== "passed"){
-                    return fail(null, strategy, "the scenario "+ position +" was expected to be passed");
+                    return { strategy: strategy, message: "the scenario "+ position +" was expected to be passed" };
                 }
             }
             if(strategy.fail){
                 const matchToFailed = matchPosition(strategy.fail, scenario.position.scenario, scenario.position.example);
                 if(matchToFailed && scenario.status !== "failed" && scenario.status !== "undefined"){
-                    return fail(null, strategy, "the scenario "+ position +" was expected to be failed");
+                    return { strategy: strategy, message: "the scenario "+ position +" was expected to be failed"};
                 }
             }
         }

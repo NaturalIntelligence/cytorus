@@ -75,6 +75,10 @@ module.exports = {
         //min: "100%" //will fail
         max: 0
     },{
+        tagExpression: "@doesNotExist",
+        //min: "100%" //will fail
+        max: 0
+    },{
         min: "50%"
     }]
 }

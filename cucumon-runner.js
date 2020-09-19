@@ -20,6 +20,8 @@ if(process.argv.indexOf("-h") !== -1 || process.argv.indexOf("--help") !== -1){
   const distributeAndSaveSpecs = require('./src/cliHelper/ParallelProcessAnalyzer');
   const evalTestResult = require("./src/cliHelper/TestResultEvaluator");
 
+  const startTime = Date.now();
+
   setupWorkSpace();
   
   let cachedSpecs = distributeAndSaveSpecs(fromCli, parseSpecs(fromCli));
@@ -64,21 +66,52 @@ if(process.argv.indexOf("-h") !== -1 || process.argv.indexOf("--help") !== -1){
   }
  
   
-  function postRun(){
-    let testStatus = true;
+  async function postRun(){
     const minimalReports = fs.readdirSync( _P.MINIMAL_RESULT_PATH ); 
     const minimalCombinedReport = [];
     for (const file of minimalReports) {
       minimalCombinedReport.push( require( _F.ABS(path.join(_P.MINIMAL_RESULT_PATH , file))) );
     }
   
-    if(!evalTestResult(projConfig.success, minimalCombinedReport)){
-      testStatus = false;
-    }
-
+    await projConfig.end();
     fs.unlinkSync(_P.CLI_ARG_PATH);
-    projConfig.end();
-    if(!testStatus) process.exitCode = 1;
+    const stats = getCount(minimalCombinedReport);
+    const result = evalTestResult(projConfig.success, minimalCombinedReport);
+    const testDuration = durationToredableFormat(Date.now() - startTime);
+    if(result !== true){
+      //console.table(stats);
+
+      const climsg = `
+  ┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+    Status    :   ❌ Failed 
+    Reason    :   ${result.message}
+    Strategy  :   ${JSON.stringify(result.strategy)}
+    Stats     :   Passed: ${stats.passed}
+                  Failed: ${stats.failed}
+                  Missing Steps: ${stats.missing}
+                  Skipped: ${stats.skipped}
+    Duration  :   ${testDuration}
+  └────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+      `;
+      console.log(climsg);
+      process.exitCode = 1;
+
+    }else{
+      const climsg = `
+  ┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+    Status    :   ✔️  Passed
+    Stats     :   Passed: ${stats.passed}
+                  Failed: ${stats.failed}
+                  Missing Steps: ${stats.missing}
+                  Skipped: ${stats.skipped}                                                         
+    Duration  :   ${testDuration}                                                                       
+  └────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+      `;
+      console.log(climsg);
+      process.exitCode = 0;
+    }
   }
 
   /**
@@ -97,3 +130,36 @@ if(process.argv.indexOf("-h") !== -1 || process.argv.indexOf("--help") !== -1){
 }
 
 
+function getCount(minimalReport){
+  const count = {
+    passed: 0,
+    failed: 0,
+    missing: 0,
+    skipped: 0,
+  }
+  for (let f_i = 0; f_i < minimalReport.length; f_i++) {
+      const feature = minimalReport[f_i];
+      for (let s_i = 0; s_i < feature.scenarios.length; s_i++) {
+        const scenario = feature.scenarios[s_i];
+        if(scenario.status === "passed"){
+            count.passed++;
+        }else if(scenario.status === "failed"){
+          count.failed++;
+        }else if(scenario.status === "undefined"){
+          count.missing++;
+        }else if(scenario.status === "skipped"){
+          count.skipped++;
+        }
+      }
+  }
+  
+  return count
+}
+
+function durationToredableFormat (duration) {
+  const ms = parseInt((duration % 1000) / 100);
+  const s = Math.floor((duration / 1000) % 60);
+  const m = Math.floor((duration / (1000 * 60)) % 60);
+  const h = Math.floor((duration / (1000 * 60 * 60)) % 24);
+  return `${h}h ${m}m ${s}s ${ms}ms`;
+}
