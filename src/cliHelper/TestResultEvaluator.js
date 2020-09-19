@@ -6,33 +6,39 @@ function evalTestResult(strategies, minimalReport){
         const strategy = strategies[i];
         if(strategy.when && strategy.when() === false) continue; //skip this strategy
 
-        if(strategy.pass || strategy.fail){
-            testForPositions(minimalReport, strategy);
+        if( strategy.pass || strategy.fail){
+            if(testForPositions(minimalReport, strategy)) continue;
+            else return false;
         }else{
             const selector = getSelector(strategy);
-            const count = getSuccessCount(minimalReport, selector);
+            const count = getCount(minimalReport, selector);
             if(typeof strategy.max === 'number'){
                 if(count.success > strategy.max) {
-                    return fail(count, strategy, "the expected maximum successful scenarios "+ strategy.max+" is lesser than " + count.success);
+                    return fail(count, strategy, "the expected maximum successful scenarios "+ strategy.max+" are lesser than " + count.success);
                 }
             }else if(typeof strategy.max === 'string'){
                 const expectedPercentage = +strategy.max.substr(0,strategy.max.length-1);
+                if(expectedPercentage === 100 || expectedPercentage > 100) continue;
+                
                 const actualPercentage = (count.success*100)/(count.success+count.failure);
                 if(actualPercentage > expectedPercentage) {
-                    return fail(count, strategy, "the expected maximum successful scenarios "+ strategy.max+" is lesser than " + actualPercentage + "%");
+                    return fail(count, strategy, "the expected maximum successful scenarios "+ strategy.max+" are lesser than " + actualPercentage + "%");
                 }
-            }else if(typeof strategy.threshold === 'number'){
-                if(count.success < strategy.threshold) {
-                    return fail(count, strategy, "the expected threshold "+strategy.threshold+" is greater than "+ count.success);
+            }else if(typeof strategy.min === 'number'){
+                if(count.success < strategy.min) {
+                    return fail(count, strategy, "the expected minimum successful scenarios "+strategy.min+" are greater than "+ count.success);
                 }
             }else{
                 let expectedPercentage = 100;
-                if(typeof strategy.threshold === 'string'){
-                    expectedPercentage = +strategy.threshold.substr(0,strategy.threshold.length-1);
+                if(typeof strategy.min === 'string'){
+                    expectedPercentage = +strategy.min.substr(0,strategy.min.length-1);
                 }
-                const actualPercentage = (count.success*100)/(count.success+count.failure);
-                if(actualPercentage < expectedPercentage) {
-                    return fail(count, strategy, "the expected threshold "+strategy.threshold+" is greater than "+ actualPercentage + "%");
+                const total = count.success+count.failure;
+                const actualPercentage = (count.success*100)/total;
+                if(isNaN(actualPercentage) && expectedPercentage !== 0){
+                    return fail(count, strategy, "the expected minimum successful scenarios are "+strategy.min+" but found no scenario");
+                }else if(actualPercentage < expectedPercentage) {
+                    return fail(count, strategy, "the expected minimum successful scenarios "+strategy.min+" are greater than "+ actualPercentage + "%");
                 }
             }
         }
@@ -44,15 +50,15 @@ function fail(count, strategy, message){
     if(count){
         console.log("Number of matching passing scenarios are", count.success, "out of", count.success+ count.failure);
     }
-    console.log("Failing Test for following strategy", strategy);
+    console.log("❌ Failing Test for following strategy", strategy);
     console.log("Because", message);
     return false;
 }
 
 function getSelector(strategy){
     let selector;
-    if(strategy.fileName){
-        selector = new FileSelector(strategy.fileName);
+    if(strategy.file){
+        selector = new FileSelector(strategy.file);
     }else if(strategy.tagExpression){
         let te = "";
         if(typeof strategy.tagExpression === "string"){
@@ -72,22 +78,25 @@ function getSelector(strategy){
 function testForPositions(minimalReport, strategy){
     for (let f_i = 0; f_i < minimalReport.length; f_i++) {
         const feature = minimalReport[f_i];
+        if(!feature.fileName.match(strategy.file)) continue;
         for (let s_i = 0; s_i < feature.scenarios.length; s_i++) {
             const scenario = feature.scenarios[s_i];
-            const matchToPassed = matchPosition(strategy.pass, scenario.position.scenario, scenario.position.example);
             const position = scenario.position.scenario + "." +scenario.position.example;
-            if(matchToPassed){
-                if(scenario.status !== "passed"){
-                    fail(null, strategy, "the scenario "+ scenario.position +" was expected to be passed");
+            if(strategy.pass){
+                const matchToPassed = matchPosition(strategy.pass, scenario.position.scenario, scenario.position.example);
+                if(matchToPassed && scenario.status !== "passed"){
+                    return fail(null, strategy, "the scenario "+ position +" was expected to be passed");
                 }
-            }else{
+            }
+            if(strategy.fail){
                 const matchToFailed = matchPosition(strategy.fail, scenario.position.scenario, scenario.position.example);
-                if(matchToFailed && (scenario.status !== "failed" || scenario.status !== "undefined")){
-                    fail(null, strategy, "the scenario "+ scenario.position +" was expected to be failed");
+                if(matchToFailed && scenario.status !== "failed" && scenario.status !== "undefined"){
+                    return fail(null, strategy, "the scenario "+ position +" was expected to be failed");
                 }
             }
         }
     }
+    return true;
 }
 
 function matchPosition(arr, s_i, e_i){
@@ -95,7 +104,7 @@ function matchPosition(arr, s_i, e_i){
     return arr.indexOf(s_i) !== -1 || arr.indexOf(position) !== -1;
 }
 
-function getSuccessCount(minimalReport, selector){
+function getCount(minimalReport, selector){
     let successCount = 0;
     let failingCount = 0;
     for (let f_i = 0; f_i < minimalReport.length; f_i++) {
