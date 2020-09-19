@@ -37,9 +37,16 @@ if(process.argv.indexOf("-h") !== -1 || process.argv.indexOf("--help") !== -1){
     }
   })
   
-  let projConfig = _F.readIfExist( _F.ABS( _P.PROJ_CONFIG_FILENAME ) ,{});
-  projConfig = readProjConfig(projConfig);
-  projConfig.init();
+  try{
+    console.debug("Loading project configuration file for cucumon runner");
+    let projConfig = _F.readIfExist( _F.ABS( _P.PROJ_CONFIG_FILENAME ) ,{});
+    projConfig = readProjConfig(projConfig);
+    projConfig.init();
+  }catch(err){
+    console.log("");
+    console.error(err);
+    process.exit(1);
+  }
   
   
   console.log("Preparing processes to run tests");
