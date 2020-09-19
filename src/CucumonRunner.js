@@ -1,5 +1,6 @@
 const browserify = require("@cypress/browserify-preprocessor");
 const { transformer, parser} = require("./Transformer");
+const { FNs : _F} = require("./../Constants");
 
 function updateTransformOption(options){
     const opt = Object.assign(options, { browserifyOptions: options.browserifyOptions });
@@ -23,7 +24,7 @@ function filePreProcessor(options){
 function cucumonRunner(on, config){
     on('task', {
         cucumon_runner_debug (message) {
-            console.log(message);
+            _F.debug(message);
             return null;
         }
     });

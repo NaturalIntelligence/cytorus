@@ -31,7 +31,7 @@ function saveResult(feature){
     });
     const resultFileName = path.basename( extractFileName(feature.fileName), ".feature") + ".json";
     //const resultFileName = path.basename(feature.fileName, ".feature") + ".json";
-    //cy.task("cucumon_runner_debug", "DEBUG::" + resultFileName);
+    _F.debug_cy("Saving result for " + resultFileName);
     const minimalReportPath = path.join( _P.MINIMAL_RESULT_PATH , resultFileName);
     cy.writeFile( minimalReportPath, featureObj, { log: false });
     cy.writeFile( path.join( _P.DETAIL_RESULT_PATH , resultFileName), feature, { log: false });

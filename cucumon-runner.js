@@ -12,7 +12,6 @@ if(process.argv.indexOf("-h") !== -1 || process.argv.indexOf("--help") !== -1){
   let child_process = require('child_process');
   const fs = require('fs');
   const path = require('path');
-  
   const fromCli = require('./src/cliHelper/CliArgsReader');
   const readProjConfig = require('./src/cliHelper/ProjectConfigReader');
   const parseSpecs = require('./src/cliHelper/SpecsReader');
@@ -34,12 +33,15 @@ if(process.argv.indexOf("-h") !== -1 || process.argv.indexOf("--help") !== -1){
       console.log("Error in creating", _P.CLI_ARG_PATH);
       //process.exit(1);
       process.exitCode = 1;
+    }else{
+      _F.debug("Tests must start after this line");
     }
   })
   
+  let projConfig;
   try{
     console.debug("Loading project configuration file for cucumon runner");
-    let projConfig = _F.readIfExist( _F.ABS( _P.PROJ_CONFIG_FILENAME ) ,{});
+    projConfig = _F.readIfExist( _F.ABS( _P.PROJ_CONFIG_FILENAME ) ,{});
     projConfig = readProjConfig(projConfig);
     projConfig.init();
   }catch(err){
@@ -61,11 +63,11 @@ if(process.argv.indexOf("-h") !== -1 || process.argv.indexOf("--help") !== -1){
         } , fromCli.cypress)
     });
     child.on('message', function(message) {
-      console.log('[parent] received message from child:', message);
+      //console.log('[parent] received message from child:', message);
+      _F.debug('[parent] Specs for group ' + i + ' are completed.');
       done++;
       if (done === cachedSpecs.length) {
-        console.log('Completed all tests');
-        //TODO: Show commulicative result
+        _F.debug('[parent] All the Specs are executed');
         //Retry logic
         postRun();
       }

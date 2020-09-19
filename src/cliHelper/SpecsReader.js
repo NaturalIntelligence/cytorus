@@ -2,7 +2,7 @@ const filter = require('./../ScenarioFilter');
 const Cucumon = require("cucumon");
 const fs = require("fs");
 const path = require("path");
-const { PATHS: _P } = require("./../../Constants");
+const { PATHS: _P, FNs: _F } = require("./../../Constants");
 
 /**
  * Collect filesname
@@ -30,7 +30,7 @@ function parseSpecs(cliConfig){
         const specFilePath = specFiles[i];
         const fileContent = fs.readFileSync(specFilePath).toString();
         if(!fileContent.startsWith("#!")){
-          console.log("Parsing:", specFilePath);
+          _F.debug("Parsing:", specFilePath);
           const featureObj = cucumon.parse( fileContent );
           filter( [featureObj] , spec);
           featureObj.fileName = specFilePath;
