@@ -1,17 +1,23 @@
 //const cucumberReporter = require("cytorus-reports/cucumber");
-const path = require("path");
-const cucumberReportDir = path.join( __projRootDir, "cypress/integration/cucumber-reports" );
-const fs = require("fs");
-
+const {FNs: _F} = require("cytorus/Constants")
 //After("feature", feature => {
-    //clearDir(cucumberReportDir);
-    //const reportPath = path.join(cucumberReportDir, path.basename(feature.fileName, ".feature") + ".json");
-    //const reportData = cucumberReporter(feature);
-    //cy.writeFile(reportPath , reportData , { log: false } );
 //})
-// Before("feature", result => {
-//     console.log("Before feature")
-// })
+Before("feature", result => {
+    _F.debug_cy("Before feature hook 1");
+    console.log("Before feature hook 1")
+})
+Before("feature", result => {
+    _F.debug_cy("Before feature hook 2");
+    console.log("Before feature hook 2")
+})
+After("feature", result => {
+    console.log("After feature hook 1")
+    _F.debug_cy("After feature hook 1")
+})
+After("feature", result => {
+    console.log("After feature hook 2")
+    _F.debug_cy("After feature hook 2")
+})
 // Before("suit", result => {
 //     console.log("Before suit")
 // })

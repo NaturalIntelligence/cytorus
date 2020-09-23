@@ -25,14 +25,14 @@ function loadAllStepDefinitions(){
  * @returns {string[]} list of paths
  */
 function travers(dir, extArr , prefix, postfix){
-    const fileArr = [];
+    let fileArr = [];
     const list = fs.readdirSync(dir);
     for (let i = 0; i < list.length; i++) {
         let file = list[i];
         file = path.resolve(dir, file);
         let stats = fs.lstatSync(file);
         if (stats.isDirectory(file)) {
-            fileArr.concat(travers(file, extArr, prefix, postfix) );
+            fileArr = fileArr.concat(travers(file, extArr, prefix, postfix) );
         } else {
             const ext = file.substr(file.lastIndexOf("."));
             if (extArr.indexOf(ext) !== 0) {

@@ -1,5 +1,5 @@
-const logger = require("./logger");
-import {print} from "./util";
+const logger = require("../logger");
+import {print} from "../../util";
 
 When(/I type (.*)/, (url) => {
     cy.get("input[type='text']").type("amit");
