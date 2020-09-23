@@ -89,6 +89,9 @@ if(process.argv.indexOf("-h") !== -1 || process.argv.indexOf("--help") !== -1){
     const stats = getCount(minimalCombinedReport);
     const result = evalTestResult(projConfig.success, minimalCombinedReport);
     const testDuration = durationToredableFormat(Date.now() - startTime);
+    console.log(`
+====================================================================================================
+`);
     if(result !== true){
       //console.table(stats);
 
