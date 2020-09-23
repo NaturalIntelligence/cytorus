@@ -17,7 +17,7 @@ const transform = fileName => {
         this.queue( transformedCode );
       }else if (fileName.endsWith(".feature") && !content.startsWith("#!")) {
         parseFeatureFile(content, fileName);
-        const transformedCode = bundledCode(_P.SERIALIZED_FEATURE_PATH);
+        const transformedCode = bundledCode( _F.ABS(_P.SERIALIZED_FEATURE_PATH));
         this.queue(transformedCode);
       } else {
         this.queue(content);
@@ -32,7 +32,7 @@ const transform = fileName => {
   };
 
 function parseFeatureFile(data,fileName){
-  !fs.existsSync(_P.WD) || fs.mkdirSync(_P.WD);
+  if(!fs.existsSync(_P.WD)) fs.mkdirSync(_P.WD);
 
   const cucumon = new Cucumon({clubBgSteps : true});
   let featureObj = cucumon.parse(data);
