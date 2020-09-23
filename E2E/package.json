@@ -1,5 +1,5 @@
 {
-  "name": "cypress-cucumon-test",
+  "name": "cytorus-test",
   "version": "1.0.0",
   "description": "",
   "scripts": {
@@ -10,9 +10,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "cucumon-reports": "file:../../cucumon-reports",
     "cypress": "^4.12.1",
-    "cypress-cucumon-runner": "file:../cypress-cucumon-runner-1.0.0.tgz"
+    "cytorus": "file:../cytorus-0.0.1.tgz",
+    "cytorus-reporter": "^1.0.0"
   },
   "devDependencies": {
     "cucumber-html-reporter": "^5.2.0"

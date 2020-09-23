@@ -1,5 +1,5 @@
 node_modules
-.cucumon
+.cytorus
 cypress/screenshots
-cypress/integration/cucumon-cache
+cypress/integration/cytorus-cache
 cypress/reports/*

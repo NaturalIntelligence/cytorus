@@ -11,8 +11,8 @@ let cliOPtions = _F.readIfExist( _F.ABS(_P.CLI_ARG_PATH), {});
 const transform = fileName => {
     let content = "";
     function end() {
-      if (cliOPtions.cli && fileName.match("group[0-9]+.cucumon")) {
-        fileName = fileName.replace(/.cucumon$/, ".json");
+      if (cliOPtions.cli && fileName.match("group[0-9]+.cytorus")) {
+        fileName = fileName.replace(/.cytorus$/, ".json");
         const transformedCode = bundledCode(fileName);
         this.queue( transformedCode );
       }else if (fileName.endsWith(".feature") && !content.startsWith("#!")) {

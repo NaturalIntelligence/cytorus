@@ -11,8 +11,8 @@
 // This function is called when a project is opened or re-opened (e.g. due to
 // the project's config changing)
 
-const cucumonRunner = require('cypress-cucumon-runner');
+const cytorus = require('cytorus');
 module.exports = (on, config) => {
-  cucumonRunner(on, config);
+  cytorus(on, config);
 }
 

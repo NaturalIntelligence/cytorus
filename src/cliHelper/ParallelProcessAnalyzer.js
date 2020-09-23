@@ -37,7 +37,7 @@ function distribute(config, features){
     
     fs.writeFile( _F.CACHED_JSON_FILE(i), JSON.stringify(data), err => {
       if(err){
-        console.log("Not able to write processings files in .cucumon folder on the root of the project");
+        console.log("Not able to write processings files in .cytorus folder on the root of the project");
         throw err;
       }
     });
@@ -45,7 +45,7 @@ function distribute(config, features){
   
     fs.writeFile(fileName, "" , err => {
       if(err){
-        console.log("Not able to write processings files in .cucumon folder on the root of the project");
+        console.log("Not able to write processings files in .cytorus folder on the root of the project");
         throw err;
       }
     });

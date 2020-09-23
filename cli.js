@@ -40,7 +40,7 @@ if(process.argv.indexOf("-h") !== -1 || process.argv.indexOf("--help") !== -1){
   
   let projConfig;
   try{
-    console.debug("Loading project configuration file for cucumon runner");
+    console.debug("Loading project configuration file for cytorus");
     projConfig = _F.readIfExist( _F.ABS( _P.PROJ_CONFIG_FILENAME ) ,{});
     projConfig = readProjConfig(projConfig);
     projConfig.init();
@@ -54,7 +54,7 @@ if(process.argv.indexOf("-h") !== -1 || process.argv.indexOf("--help") !== -1){
   console.log("Preparing processes to run tests");
   let done = 0;
   for (let i = 0; i < cachedSpecs.length; i++){
-    let child = child_process.fork( path.join( __dirname, './src/cliHelper/cucumon-runner-child.js') );
+    let child = child_process.fork( path.join( __dirname, './src/cliHelper/cytorus-child-process.js') );
     child.send({
       cmd: process.argv[2],
       cypressConfig: Object.assign({}, {

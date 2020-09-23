@@ -4,6 +4,5 @@ test
 .vscode
 node_modules
 docs
-documentation.md
 Plan.md
-ToDo.md
+ToDO.md

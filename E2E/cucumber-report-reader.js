@@ -9,9 +9,9 @@ var options = {
         launchReport: true,
         metadata: {
             "App Version":"0.3.2",
-            "Test Environment": "STAGING",
+            "Test Environment": "DEVELOPEMENT",
             "Browser": "Chrome  54.0.2840.98",
-            "Platform": "Windows 10",
+            "Platform": "Linux",
             "Parallel": "Scenarios",
             "Executed": "Remote"
         }

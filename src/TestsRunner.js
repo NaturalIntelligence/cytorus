@@ -22,7 +22,6 @@ module.exports = function( featureArr ){
                         if(scenario.skip) {
                             //Update pending test count
                             xit(scenario.keyword + ": "+ scenario.statement, ()=> {
-                                //clilog("SKIPPING THIS TEST")
                             }); 
                             //it.skip(scenario.statement, ()=> {}); 
                             scenario.status = "skipped";
@@ -52,10 +51,8 @@ function runSteps(scenario, feature){
         scenario.status = "pending";
         
         window.SC = {};//reset Scenario Context for every test
-        //clilog("Running scenario of Feature: " + feature.statement);
         cy
         .then( () => {
-            //clilog("Before Scenario: " + scenario.statement);
             _E.beforeScenario(scenario) 
         })
         .then( () => {
@@ -70,14 +67,11 @@ function runSteps(scenario, feature){
                 
                 cy
                     .then(() => {
-                        //clilog("Before Step: " + step.statement);
                     }).then(() => {
                         runStep(step, i+1);
-                        //clilog("Status: " + step.status);
                     })
                     .then(() => {
                         lastStep = step;
-                        //clilog("After Status: " + step.status)
                         step.error_message = currentTest.error_message;
                         _E.afterStep(step)
                     });
@@ -85,7 +79,6 @@ function runSteps(scenario, feature){
             
         }).then(() => {
             if(scenario.status === "pending") scenario.status = "passed";
-            //clilog("After Scenario: " + scenario.statement);
             _E.afterScenario(scenario)
         });
     })
@@ -93,10 +86,8 @@ function runSteps(scenario, feature){
 
 function runStep(step, position){
     const fnDetail = findStepDef(step);
-    //clilog("Step: ", step);
 
     if(!fnDetail){
-        //clilog("Step: missing");
         const formattedStatement = " 🤦 ~~**" + step.statement + "**~~";
         decorateDisplay(step,fnDetail, formattedStatement);
         step.status = "undefined";
@@ -113,12 +104,10 @@ function runStep(step, position){
         decorateDisplay(step,fnDetail, "**"+ step.statement +"**");
         const startTime = Date.now();
         try{
-            //clilog("Step: executing");
             fnDetail.fn.apply(this, fnDetail.arg);
             logMe("%cStep "+ position +"::%c " + step.statement, "background-color: black; color:white", "color: inherit;");
         }catch(err){
             if(step.status !== "undefined") {
-                //clilog("Step: failed");
                 step.status = "failed";
                 currentTest.status = "failed";
             }
@@ -135,14 +124,9 @@ function runStep(step, position){
         step.duration = endTime - startTime;
         step.status = "passed";
         //step.status = "passed";
-        //clilog("Step: successful");
     }
     
 
-}
-
-function clilog(message){
-    cy.task("cucumon_runner_debug", "DEBUG:: " + message);
 }
 
 function logMe(){

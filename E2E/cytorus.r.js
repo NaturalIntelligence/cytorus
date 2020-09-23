@@ -1,4 +1,4 @@
-const CucumerReporter = require("cucumon-reports/cucumber");
+const CucumerReporter = require("cytorus-reporter/cucumber");
 const fs = require('fs');
 const path = require('path');
 

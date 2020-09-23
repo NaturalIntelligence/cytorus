@@ -1,4 +1,4 @@
-//const cucumberReporter = require("cucumon-reports/cucumber");
+//const cucumberReporter = require("cytorus-reports/cucumber");
 const path = require("path");
 const cucumberReportDir = path.join( __projRootDir, "cypress/integration/cucumber-reports" );
 const fs = require("fs");
