@@ -27,7 +27,7 @@ module.exports = {
         file: "dataConverter.feature",
         pass: [1,2.1, 2.2, 4]
     },{
-        file: "features/dynamicArguments.feature",
+        file: "features/nested/dynamicArguments.feature",
         min: "100%"
     },{
         file: "integration/features/failing.feature",

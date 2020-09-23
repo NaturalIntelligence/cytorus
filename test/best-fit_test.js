@@ -1,4 +1,4 @@
-const bestFit = require("./../src/best-fit");
+const bestFit = require("./../src/cliHelper/best-fit");
 
 describe("BestFit", () => {
     it("should resolve ", () => {
