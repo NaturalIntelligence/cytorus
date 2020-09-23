@@ -1,10 +1,12 @@
 #!/usr/bin/env node
 
+const isInteractiveMode = process.argv[2] === "open";
+
 if(process.argv.indexOf("-h") !== -1 || process.argv.indexOf("--help") !== -1){
   console.log(require('./src/cliHelper/helpContent'));
   //process.exit(0);
   process.exitCode = 0;
-}else if(process.argv[2] !== "open" && process.argv[2] !== "run"){
+}else if(!isInteractiveMode && process.argv[2] !== "run"){
   console.log("Invalid action. Either user 'open' or 'run' instead of '"+process.argv[2]+"'");
   process.exitCode = 1;
   //process.exit(1);
@@ -62,20 +64,20 @@ if(process.argv.indexOf("-h") !== -1 || process.argv.indexOf("--help") !== -1){
           //"quiet": true
         } , fromCli.cypress)
     });
-    child.on('message', function(message) {
+    child.on('message', async function(message) {
       //console.log('[parent] received message from child:', message);
       _F.debug('[parent] Specs for group ' + i + ' are completed.');
       done++;
       if (done === cachedSpecs.length) {
         _F.debug('[parent] All the Specs are executed');
         //Retry logic
-        postRun();
+        if(!isInteractiveMode) await postRunProcessing();
       }
     });
   }
  
   
-  async function postRun(){
+  async function postRunProcessing(){
     const minimalReports = fs.readdirSync( _P.MINIMAL_RESULT_PATH ); 
     const minimalCombinedReport = [];
     for (const file of minimalReports) {

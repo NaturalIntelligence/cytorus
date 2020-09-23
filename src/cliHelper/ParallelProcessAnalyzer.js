@@ -12,7 +12,7 @@ const { PATHS: _P, FNs: _F } = require("./../../Constants");
 function distribute(config, features){
     console.log("Analyzing if tests can run in parallel");
     let cachedFeatureFileNames = [];
-    if(config.cypress[0] !== "open" && config.dist && config.dist.limit > 1 && features.length > 1){
+    if(process.argv[2] !== "open" && config.dist && config.dist.limit > 1 && features.length > 1){
       //Group features based on number of scenarios
       const bins = bestFit(features,config.dist.limit);
       

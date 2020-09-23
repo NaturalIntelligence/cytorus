@@ -1,5 +1,5 @@
 const cypress = require('cypress')
-const {FNs: _F} = require('./../../Constants')
+const {FNs: _F} = require('../../Constants')
 
 let startTime = Date.now();
 
