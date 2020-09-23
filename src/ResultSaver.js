@@ -29,16 +29,8 @@ function saveResult(feature){
             featureObj.scenarios.push(scenarioObj);
         });
     });
-    const resultFileName = path.basename( extractFileName(feature.fileName), ".feature") + ".json";
-    //const resultFileName = path.basename(feature.fileName, ".feature") + ".json";
+    const resultFileName = Date.now()+".json";
     _F.debug_cy("Saving result for " + resultFileName);
-    const minimalReportPath = path.join( _P.MINIMAL_RESULT_PATH , resultFileName);
-    cy.writeFile( minimalReportPath, featureObj, { log: false });
-    cy.writeFile( path.join( _P.DETAIL_RESULT_PATH , resultFileName), feature, { log: false });
-}
-
-function extractFileName(featureFileName){
-    const basePath = _F.ABS( _P.FEATURES_PATH )
-    console.log( basePath );
-    return featureFileName.substr(basePath.length).replace("/", "_");
+    cy.writeFile( path.join( _P.MINIMAL_RESULT_PATH , resultFileName), featureObj, { log: false });
+    cy.writeFile( path.join( _P.DETAIL_RESULT_PATH  , resultFileName), feature, { log: false });
 }
