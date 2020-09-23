@@ -12,7 +12,7 @@
   "dependencies": {
     "cypress": "^4.12.1",
     "cytorus": "file:../cytorus-0.0.1.tgz",
-    "cytorus-reporter": "^1.0.0"
+    "cytorus-reporter": "file:../../cytorus-reporter"
   },
   "devDependencies": {
     "cucumber-html-reporter": "^5.2.0"
