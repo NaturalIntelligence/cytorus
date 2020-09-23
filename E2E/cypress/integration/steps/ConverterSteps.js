@@ -3,12 +3,14 @@
 import Converter from "../services/Converter";
 import path from "path"
 
-Given("the following query params", (obj) => {
+Given("the following query params", function (obj) {
     SC.converter = new Converter(obj);
+    this.SC2 = "this is in mocha context"; //mocha context will not work with arrow function
 });
 
-And("post body", (payload) => {
+And("post body", function (payload){
     SC.response = SC.converter.convert(payload);
+    expect(this.SC2).to.be.equal("this is in mocha context");
 });
 
 
