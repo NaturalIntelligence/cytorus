@@ -13,7 +13,7 @@ PATHS.CLI_ARG_ABS_PATH = path.join(__projRootDir, PATHS.WD, "cli.json"); //Used 
 PATHS.SERIALIZED_FEATURE_PATH = PATHS.WD + "featureObj.json";
 PATHS.FEATURES_CACHE = "cypress/integration/cytorus-cache/";
 PATHS.FEATURES_PATH = "cypress/integration/features/";
-PATHS.PROJ_CONFIG_FILENAME = "cytorus.r.js";
+PATHS.PROJ_CONFIG_FILENAME = "cytorus.config.js";
 //PATHS.PROJ_CONFIG_ABS_PATH = path.join(__projRootDir, PATHS.PROJ_CONFIG_FILENAME);
 
 const VALs = {};
