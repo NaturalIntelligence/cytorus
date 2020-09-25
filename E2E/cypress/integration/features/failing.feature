@@ -5,6 +5,7 @@ Scenario: Step not found
     And I dont find implementation of this step
     Then the above step should fail and all the steps from here should be skipped
     And this one too
+    Then I leave some error
 
 Scenario: exist
     Given I start here

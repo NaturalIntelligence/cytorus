@@ -19,7 +19,7 @@ function parseSpecs(cliConfig){
       let specFiles;
       const spec = cliConfig.specs[s_i];
       if(!spec.files){
-        specFiles = traverse(_P.FEATURES_PATH, ".feature");
+        specFiles = traverse(_P.FEATURES_PATH, ".feature", true);
       }else if(Array.isArray(spec.files)){
         specFiles = spec.files;
       }else if(typeof spec.files === 'string'){

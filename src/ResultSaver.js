@@ -29,8 +29,17 @@ function saveResult(feature){
             featureObj.scenarios.push(scenarioObj);
         });
     });
-    const resultFileName = Date.now()+".json";
+    const resultFileName = extractRelativePath(feature.fileName, _P.FEATURES_PATH).replace(/\.feature$/, ".json");
     _F.debug_cy("Saving result for " + resultFileName);
+    //Due to https://github.com/cypress-io/cypress/issues/3350
     cy.writeFile( path.join( _P.MINIMAL_RESULT_PATH , resultFileName), featureObj, { log: false });
     cy.writeFile( path.join( _P.DETAIL_RESULT_PATH  , resultFileName), feature, { log: false });
+    //I can't call cy.writeFile directly as it timesout
+    //So I'm using task to writeFile
+    //cy.task("cytorus_writeFile", path.join( _P.MINIMAL_RESULT_PATH , resultFileName), featureObj );
+    //cy.task("cytorus_writeFile", path.join( _P.DETAIL_RESULT_PATH , resultFileName), feature );
+}
+
+function extractRelativePath(path, basePath){
+    return path.substr(basePath.length).replace(/\//g,"%");
 }

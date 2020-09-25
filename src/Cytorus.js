@@ -1,6 +1,7 @@
 const browserify = require("@cypress/browserify-preprocessor");
 const { transformer, parser} = require("./Transformer");
 const { FNs : _F} = require("../Constants");
+const fs = require("fs");
 
 function updateTransformOption(options){
     const opt = Object.assign(options, { browserifyOptions: options.browserifyOptions });
@@ -25,6 +26,12 @@ function cytorus(on, config){
     on('task', {
         cytorus_debug (message) {
             _F.debug(message);
+            return null;
+        },
+        cytorus_writeFile ( {filename, data}){
+            fs.writeFile(filename, data, err => {
+                if(err) console.error(err);
+            });
             return null;
         }
     });

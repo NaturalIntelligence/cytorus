@@ -8,7 +8,8 @@ Feature: Search on Google page
   
   @only
   Scenario: simple 3
-    Given I open https://www.google.com/
+    Given I start here
+    Then I open https://www.google.com/
     Then I type list of products  
     And Search
     

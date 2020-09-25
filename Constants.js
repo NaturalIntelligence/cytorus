@@ -5,6 +5,7 @@ global.__projRootDir = process.cwd();
 
 const PATHS = {};
 PATHS.WD = ".cytorus/";
+PATHS.PROJ_ROOT = process.cwd();
 PATHS.MINIMAL_RESULT_PATH = PATHS.WD + "result/minimal/";
 PATHS.DETAIL_RESULT_PATH = PATHS.WD + "result/detail/";
 PATHS.CLI_ARG_PATH = PATHS.WD + "cli.json";
