@@ -6,37 +6,37 @@ const {findStepDef, forEachFeature, forEachRule, forEachScenarioIn} = require(".
 let currentTest = {};
 let currentStep = {};
 module.exports = function( featureArr ){
-    describe("Suit", () => {
-        it("Before Suit Hook", () => {
-            cy.then( () => _E.beforeSuit() );
-        })
-        forEachFeature(featureArr, feature => {
-            describe("Feature: " + feature.statement, () => {
-                it("Before Feature Hook", () => {
-                    cy.then( () => _E.beforeFeature(feature) );  
-                });
-                forEachRule(feature, rule => {
-                    forEachScenarioIn(rule, scenario => {
-                        if(scenario.skip) {
-                            //Update pending test count
-                            xit(scenario.keyword + ": "+ scenario.statement, ()=> {
-                            }); 
-                            //it.skip(scenario.statement, ()=> {}); 
-                            scenario.status = "skipped";
-                        }else{
-                            runSteps(scenario, feature);
-                        }
-                    });
-                });
-                it("After Feature Hook", () => {
-                    cy.then( () => _E.afterFeature(feature))
-                })
+    // describe("Suit", () => {
+    //     it("Before Suit Hook", () => {
+    //         cy.then( () => _E.beforeSuit() );
+    //     })
+    forEachFeature(featureArr, feature => {
+        describe("Feature: " + feature.statement, () => {
+            it("Before Feature Hook", () => {
+                cy.then( () => _E.beforeFeature(feature) );  
             });
+            forEachRule(feature, rule => {
+                forEachScenarioIn(rule, scenario => {
+                    if(scenario.skip) {
+                        //Update pending test count
+                        xit(scenario.keyword + ": "+ scenario.statement, ()=> {
+                        }); 
+                        //it.skip(scenario.statement, ()=> {}); 
+                        scenario.status = "skipped";
+                    }else{
+                        runSteps(scenario, feature);
+                    }
+                });
+            });
+            it("After Feature Hook", () => {
+                cy.then( () => _E.afterFeature(feature))
+            })
         });
-        it("After Suit Hook", () => {
-            cy.then( () => _E.afterSuit() );
-        })
     });
+    //     it("After Suit Hook", () => {
+    //         cy.then( () => _E.afterSuit() );
+    //     })
+    // });
 }
 
 function runSteps(scenario, feature){
@@ -45,33 +45,41 @@ function runSteps(scenario, feature){
         scenario.status = "pending";
         
         window.SC = {};
-        cy.then(() =>{
-            new window.Cypress.Promise(() => {
+        return cy.then(() =>{
+            //new window.Cypress.Promise(() => {
                 logMe("%c"+scenario.keyword+":: %c" + scenario.statement, "color: red; font-size:16px", "color: black; font-size:normal");
                 _E.beforeScenario(scenario);
-            }).then( 
-                window.Cypress.Promise.each( scenario.steps , (step,i) => {
-                    let startTime;
-                    cy.then(() => {
-                        step.status = "pending";
-                        
-                        startTime = Date.now();
-                        currentStep = step;
-                        runStep(step, i+1);
-                    }).then(() => {
-                        if(step.status !== "undefined"){
-                            step.duration = Date.now() - startTime;
-
-                            if(step.status === "pending") step.status = "passed";
+            }).then( () => {
+                const stepPromises = Array(scenario.steps.length);
+                for (let s_i = 0; s_i < scenario.steps.length; s_i++) {
+                    const step = scenario.steps[s_i];
+                    //console.log("Running step: ", step.statement);
+                    let startTime = 0;
+                    stepPromises[s_i] = cy.then(() => {
+                            step.status = "pending";
                             
-                            scenario.status = step.status;
-                            //_E.afterStep(step)
-                        }else{
-                            scenario.status = step.status;
-                        }
-                    });
-                })
-            );
+                            startTime = Date.now();
+                            currentStep = step;
+                            runStep(step, s_i+1);
+                            //return startTime;
+                        }).then(() => {
+                            if(step.status !== "undefined"){
+                                step.duration = Date.now() - startTime;
+    
+                                if(step.status === "pending") step.status = "passed";
+                                
+                                scenario.status = step.status;
+                                //_E.afterStep(step)
+                            }else{
+                                scenario.status = step.status;
+                            }
+                        });
+                }
+                return window.Cypress.Promise.each( stepPromises, stepPromise => {
+                        //console.log("for each promise");
+                        //console.log(stepPromise);
+                    })
+            //});
         }).then( () => {
             _F.debug_cy("After scenario: "+ scenario.statement);
             _E.afterScenario(scenario)

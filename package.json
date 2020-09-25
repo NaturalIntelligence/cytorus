@@ -29,6 +29,7 @@
   "dependencies": {
     "@cypress/browserify-preprocessor": "^3.0.1",
     "bexp": "^1.0.2",
+    "cucumber-expressions": "^8.3.0",
     "cucumon": "^1.4.0",
     "through": "^2.3.8"
   },

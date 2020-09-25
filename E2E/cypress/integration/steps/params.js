@@ -1,4 +1,4 @@
-step('I buy {int} {string}(s) in ₹{float}', () => {
+step('I buy {int} ball(s) in ₹{int}', () => {
     //do nothing
 });
 

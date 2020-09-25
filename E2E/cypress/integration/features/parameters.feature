@@ -1,4 +1,4 @@
-@skip
+@params
 Feature: Support cucumber expression
 
 Scenario: default paramters

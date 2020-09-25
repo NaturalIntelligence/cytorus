@@ -47,8 +47,8 @@ module.exports = {
         //min: "0%" //this will pass
     },{
         file: "parameters.feature",
-        max: "10%", // any >0% will work here
-        //min: "10%" //will fail
+        //max: "10%", //will fail
+        min: "90%"
     },{
         file: "sections.feature",
         min: "100%"

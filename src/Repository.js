@@ -1,78 +1,49 @@
 //In Browser
-const { resolveCucumberExp } = require("./CucumberExpressionResolver");
 const { processDataTable, processDocString } = require("./ArgInsProcessor");
+const {
+    CucumberExpression,
+    RegularExpression,
+    ParameterTypeRegistry
+  } = require("cucumber-expressions");
 
-const strSteps = {};
 const regexSteps = [];
+const cucumberExpParamsRegistry= new ParameterTypeRegistry();
 
 function register(step_exp, fn){
-    if(typeof step_exp === "string"){
-        //const resolvedExp = resolveCucumberExp(step_exp);
-        //if(resolvedExp === step_exp){//not a cucumber exp
-            strSteps[step_exp] = {
-                fn: fn
-            }
-            //return;
-        //}else{
-        //    step_exp = new RegExp(resolvedExp);
-            //registerRegx(resolvedExp, fn);
-        //}
-    }else{
-        registerRegx(step_exp, fn);
+    let stepExpRegex;
+    if (step_exp instanceof RegExp) {
+        stepExpRegex = new RegularExpression( step_exp, cucumberExpParamsRegistry);
+    } else {
+        stepExpRegex = new CucumberExpression(step_exp, cucumberExpParamsRegistry);
     }
-}
-
-function registerRegx(regexStep, fn){
+    
     regexSteps.push({
         fn: fn,
-        statement: regexStep
+        statement: stepExpRegex
     });
 }
 
-const steps_cache = {}
-
+//TODO: check if the performance can be increased by cache
 function findStep(step){
-    
-    //if a step has no argument and atring then check in cache
-    if(!step.arg && steps_cache[step.statement]) return steps_cache[step.statement];
-
     let fnDetail;
-    let stepDef = strSteps[step.statement];
-    if(stepDef){
-        fnDetail = {
-            fn: stepDef.fn,
-            exp: step.statement
-        }
-        if(step.arg) {
-            processArgument(step);
-            fnDetail.arg = [step.arg.content];
-        }else{
-            steps_cache[step.statement] = fnDetail;
-        }
-    }else{
-        for (let index = 0; index < regexSteps.length; index++) {
-            stepDef = regexSteps[index];
-            //console.log(stepDef.statement);
-            const match = stepDef.statement.exec(step.statement);
-
-            if(match){
-                fnDetail = {
-                    fn: stepDef.fn,
-                    exp: step.statement
-                }
-
-                const matchingArgs = match.slice(1);
-                if(step.arg){//doc string or data table
-                    processArgument(step);
-                    matchingArgs.push(step.arg.content);
-                }
-                fnDetail.arg = matchingArgs;    
-                if(!fnDetail.arg) steps_cache[step.statement] = fnDetail;
+    for (let i=0; i < regexSteps.length; i++) {
+        const stepDef = regexSteps[i];
+        const match = stepDef.statement.match(step.statement);
+        if(match){
+            
+            fnDetail = {
+                fn: stepDef.fn,
+                exp: step.statement
             }
-        }
 
+            const matchingArgs = match.map( arg => arg.getValue());
+            if(step.arg){//doc string or data table
+                processArgument(step);
+                matchingArgs.push(step.arg.content);
+            }
+            fnDetail.arg = matchingArgs;    
+        }
     }
-    //console.debug("Step definition detail::",fnDetail);
     return fnDetail;
 }
 
