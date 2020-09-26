@@ -8,6 +8,8 @@ Scenario: default paramters
     # I can use cucumber expressions in step definition/implementation
     Then I can use cucumber expressions in step definition
     Then I can use cucumber expressions in step implementation
+    And I select "red" color
+    And I select "red color"
 
 
 # Scenario: custom paramters

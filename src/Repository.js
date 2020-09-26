@@ -33,7 +33,8 @@ function findStep(step){
             
             fnDetail = {
                 fn: stepDef.fn,
-                exp: step.statement
+                exp: step.statement,
+                registered_exp: stepDef.statement
             }
 
             const matchingArgs = match.map( arg => arg.getValue());

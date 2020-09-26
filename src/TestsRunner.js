@@ -156,6 +156,7 @@ function decorateDisplay(step,fnDetail, statement){
     }
     if(fnDetail){
         consoleLog.Expression = fnDetail.exp;
+        consoleLog.Registered_Expression = fnDetail.registered_exp;
         consoleLog.Arguments = JSON.stringify(fnDetail.arg);
     }
 
