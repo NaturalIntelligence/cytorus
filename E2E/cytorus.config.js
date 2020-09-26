@@ -19,7 +19,7 @@ module.exports = {
     end: async function(){
         await cucumerReporter.report();
     },
-    success:[{
+    threshold:[{
         //No test with @skip tag should run
         tagExpression: "@skip",
         max: 0

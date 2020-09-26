@@ -111,7 +111,8 @@ if(process.argv.indexOf("-h") !== -1 || process.argv.indexOf("--help") !== -1){
     await projConfig.end();
     fs.unlinkSync(_P.CLI_ARG_PATH);
     const stats = getCount(minimalCombinedReport);
-    const result = evalTestResult(projConfig.success, minimalCombinedReport);
+    if(!projConfig.threshold) projConfig.threshold = [];
+    const result = evalTestResult(projConfig.threshold, minimalCombinedReport);
     const testDuration = durationToredableFormat(Date.now() - startTime);
     console.log(`
 ====================================================================================================
