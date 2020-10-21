@@ -7,7 +7,7 @@ When(/I type (.*)/, (url) => {
     print("Search completed");
 });
 
-When(/Search/, (url) => {
+When(/^Search/, (url) => {
     cy.get("input[type='submit']")  
 
     

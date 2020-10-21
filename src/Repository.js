@@ -16,7 +16,6 @@ function register(step_exp, fn){
     } else {
         stepExpRegex = new CucumberExpression(step_exp, cucumberExpParamsRegistry);
     }
-    
     regexSteps.push({
         fn: fn,
         statement: stepExpRegex
@@ -42,7 +41,8 @@ function findStep(step){
                 processArgument(step);
                 matchingArgs.push(step.arg.content);
             }
-            fnDetail.arg = matchingArgs;    
+            fnDetail.arg = matchingArgs;
+            break;
         }
     }
     return fnDetail;

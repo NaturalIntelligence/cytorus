@@ -16,3 +16,12 @@ step(/I throw some error/, function() {
     throw new Error("on my wish");
 });
 
+
+step(/I am on Brand (.*) page/, function(pageName) {
+    console.log("I'm on Brand ", pageName)
+});
+
+step(/^I am on (.*) page/, function(pageName) {
+    console.log("I'm on Brand ", pageName)
+});
+
