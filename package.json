@@ -1,6 +1,6 @@
 {
   "name": "cytorus",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Cytorus is a cypress file preprocessor which allows you to run cucumon(gherkin like) tests",
   "main": "src/Cytorus.js",
   "bin": {

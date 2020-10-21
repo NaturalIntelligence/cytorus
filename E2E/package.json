@@ -11,8 +11,8 @@
   "license": "ISC",
   "dependencies": {
     "cypress": "^4.12.1",
-    "cytorus": "file:../cytorus-0.0.1.tgz",
-    "cytorus-reporter": "file:../../cytorus-reporter"
+    "cytorus": "file:../cytorus-0.1.3.tgz",
+    "cytorus-reporter": "^1.0.1"
   },
   "devDependencies": {
     "cucumber-html-reporter": "^5.2.0"
