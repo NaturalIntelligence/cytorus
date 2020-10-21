@@ -150,21 +150,24 @@ Cypress.on("fail", failureReporter);
 
 
 
+
 function decorateDisplay(step,fnDetail, statement){
     const consoleLog = {
         statement: step.statement,
     }
     if(fnDetail){
         consoleLog.Expression = fnDetail.exp;
+        consoleLog.LineNumber= step.lineNumber;
         consoleLog.Registered_Expression = fnDetail.registered_exp;
         consoleLog.Arguments = JSON.stringify(fnDetail.arg);
     }
 
     Cypress.log({
         name: "step",
-        displayName: step.keyword.toUpperCase(),
+        displayName: "👣 " + step.keyword.toUpperCase(),
         message: statement, //markdown
         consoleProps: () => consoleLog
       });
 
   };
+

@@ -47,14 +47,6 @@ function evalTestResult(strategies, minimalReport){
     }
     return true;
 }
-
-function fail(count, strategy, message){
-    // console.log("❌ Failing Test for following strategy", strategy);
-    // console.log("Because", message);
-    console.log(climsg);
-    return false;
-}
-
 function getSelector(strategy){
     let selector;
     if(strategy.file){

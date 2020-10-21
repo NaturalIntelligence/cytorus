@@ -31,9 +31,9 @@ if(process.argv.indexOf("-h") !== -1 || process.argv.indexOf("--help") !== -1){
     reports, page flow and to integrate your test result with Kanban board, API documents etc.
   `)*/
 
-  console.log(`
-  visit: amitkumargupta.work for more awesome opensource projects
-  `);
+  // console.log(`
+  // visit: amitkumargupta.work for more awesome opensource projects
+  // `);
 
   let child_process = require('child_process');
   const fs = require('fs');
