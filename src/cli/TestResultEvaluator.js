@@ -1,3 +1,8 @@
+/**
+ * The whole test suite might be failing. But the test result may be passed depends on what test strategy have been set.
+ * Eg tests which can fail in the evening as the stores are closed
+ * A strategy can be defined to skip those tests conditionally or not to count their behaiour in the result of whole test suite
+ */
 const BexpParser = require("bexp");
 
 function evalTestResult(strategies, minimalReport){
@@ -11,9 +16,14 @@ function evalTestResult(strategies, minimalReport){
             const result = testForPositions(minimalReport, strategy);
             if(result === true) continue;
             else return result;
-        }else{
-            const selector = getSelector(strategy);
-            const count = getCount(minimalReport, selector);
+        }else if(strategy.max || strategy.min || strategy.max === 0 || strategy.min === 0 ){
+            const count = getCount(minimalReport, strategy);
+            
+            if(count.success === 0 && count.failure === 0){ 
+                //there is no test executed to satisfy current strategy
+                continue;
+            }
+            
             if(typeof strategy.max === 'number'){
                 if(count.success > strategy.max) {
                     return { strategy: strategy, message: "the expected maximum successful scenarios "+ strategy.max+" are lesser than " + count.success};
@@ -43,29 +53,15 @@ function evalTestResult(strategies, minimalReport){
                     return { strategy: strategy, message: "the expected minimum successful scenarios "+strategy.min+" are greater than "+ actualPercentage + "%"};
                 }
             }
+        }else{
+            console.log(`Skipping following strategy as no Expectation found`);
+            console.log(strategy);
         }
     }
     return true;
 }
-function getSelector(strategy){
-    let selector;
-    if(strategy.file){
-        selector = new FileSelector(strategy.file);
-    }else if(strategy.tagExpression){
-        let te = "";
-        if(typeof strategy.tagExpression === "string"){
-            te = strategy.tagExpression;
-        }else if(typeof strategy.tagExpression === "function"){
-            te = strategy.tagExpression();
-        }else{
-            throw new Error("Invalid tag expression type for "+ strategy.tagExpression);
-        }
-        selector = new TagExpSelector(te);
-    }else{
-        selector = new TagExpSelector("");
-    }
-    return selector;
-}
+
+
 
 function testForPositions(minimalReport, strategy){
     for (let f_i = 0; f_i < minimalReport.length; f_i++) {
@@ -77,13 +73,13 @@ function testForPositions(minimalReport, strategy){
             if(strategy.pass){
                 const matchToPassed = matchPosition(strategy.pass, scenario.position.scenario, scenario.position.example);
                 if(matchToPassed && scenario.status !== "passed"){
-                    return { strategy: strategy, message: "the scenario "+ position +" was expected to be passed" };
+                    return { strategy: strategy, message: "the scenario "+ position +" was expected to be passed as per following threshold strategy" };
                 }
             }
             if(strategy.fail){
                 const matchToFailed = matchPosition(strategy.fail, scenario.position.scenario, scenario.position.example);
                 if(matchToFailed && scenario.status !== "failed" && scenario.status !== "undefined"){
-                    return { strategy: strategy, message: "the scenario "+ position +" was expected to be failed"};
+                    return { strategy: strategy, message: "the scenario "+ position +" was expected to be failed as per following threshold strategy"};
                 }
             }
         }
@@ -96,7 +92,16 @@ function matchPosition(arr, s_i, e_i){
     return arr.indexOf(s_i) !== -1 || arr.indexOf(position) !== -1;
 }
 
-function getCount(minimalReport, selector){
+/**
+ * Get the count of passed, failing tests for given strategy.
+ * 
+ * @param {object} minimalReport 
+ * @param {object} selector 
+ * @returns {object}
+ */
+function getCount(minimalReport, strategy){
+    // Iterate through minimal report and match
+    const selector = getSelector(strategy);
     let successCount = 0;
     let failingCount = 0;
     for (let f_i = 0; f_i < minimalReport.length; f_i++) {
@@ -120,6 +125,25 @@ function getCount(minimalReport, selector){
     }
 }
 
+function getSelector(strategy){
+    let selector;
+    if(strategy.file){
+        selector = new FileSelector(strategy.file);
+    }else if(strategy.tagExpression){
+        let te = "";
+        if(typeof strategy.tagExpression === "string"){
+            te = strategy.tagExpression;
+        // }else if(typeof strategy.tagExpression === "function"){
+        //     te = strategy.tagExpression();
+        }else{
+            throw new Error("Invalid tag expression type for "+ strategy.tagExpression);
+        }
+        selector = new TagExpSelector(te);
+    }else{
+        selector = new TagExpSelector("");
+    }
+    return selector;
+}
 class TagExpSelector{
     constructor(tagExpression){
         this.tagExpResolver = new BexpParser(tagExpression);
@@ -132,10 +156,13 @@ class TagExpSelector{
 
 class FileSelector{
     constructor(fileName){
+        //TODO: use glob module to accept file exp
+        //this.fileNames = glob.sync( fileName));
         this.fileName = fileName;
     }
 
     test(feature, scenario){
+        //TODO: loop on this.fileNames
         return feature.fileName.match(this.fileName);
     }
 }

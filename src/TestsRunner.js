@@ -1,94 +1,123 @@
 //This code will run in browser
-const _E = require("./EventObjectBuilder");
-const {FNs: _F} = require("./../Constants");
-const {findStepDef, forEachFeature, forEachRule, forEachScenarioIn} = require("./Repository");
+const {find} = require("./Registry");
+const { saveResult } = require("./Report");
+const { cliLog } = require("./../Tasks");
 
 let currentTest = {};
 let currentStep = {};
-module.exports = function( featureArr ){
-    // describe("Suit", () => {
-    //     it("Before Suit Hook", () => {
-    //         cy.then( () => _E.beforeSuit() );
-    //     })
-    forEachFeature(featureArr, feature => {
+let urlChangedCount = 0;
+module.exports = function ( features, routeCount ){
+
+    for(let f_i=0; f_i < features.length; f_i++){
+        const feature = features[f_i];
+        let scenarioCount = {
+            count: 0
+        };
+
         describe("Feature: " + feature.statement, () => {
-            it("Before Feature Hook", () => {
-                cy.then( () => _E.beforeFeature(feature) );  
-            });
-            forEachRule(feature, rule => {
-                forEachScenarioIn(rule, scenario => {
-                    if(scenario.skip) {
-                        //Update pending test count
-                        xit(scenario.keyword + ": "+ scenario.statement, ()=> {
-                        }); 
-                        //it.skip(scenario.statement, ()=> {}); 
-                        scenario.status = "skipped";
+            for(let r_i=0; r_i < feature.rules.length; r_i++){
+                const rule = feature.rules[r_i];
+                for(let s_i=0; s_i < rule.scenarios.length; s_i++){
+                    const scenario = rule.scenarios[s_i];
+                    if(scenario.examples !== undefined){
+                        for(let expanded_i=0; expanded_i < scenario.expanded.length; expanded_i++){
+                            runScenario(scenario.expanded[expanded_i], scenarioCount, routeCount);
+                        }
                     }else{
-                        runSteps(scenario, feature);
+                        runScenario(scenario, scenarioCount, routeCount);
                     }
-                });
-            });
-            it("After Feature Hook", () => {
-                cy.then( () => _E.afterFeature(feature))
-            })
-        });
-    });
-    //     it("After Suit Hook", () => {
-    //         cy.then( () => _E.afterSuit() );
-    //     })
-    // });
+                }
+            }
+
+            // afterEach(() => {
+            //     if(scenarioCount.count === feature.stats.total) saveResult(feature); 
+            // });
+            //after( ()=> {
+                //cy.then( () => {saveResult(feature) }); 
+                //return cy.wrap( saveResult(feature) ); 
+                //return cy.log("after feature").then( ()=> {saveResult(feature) } ); 
+            //});
+            if(!window.isCyDashboard){
+                it("Updating test results", function(){
+                    cy.then( () => {
+                        saveResult(feature)
+                    }).then( () => {
+                        this.skip();
+                    });
+                })
+            }
+        } );//describe ends
+    }
 }
 
-function runSteps(scenario, feature){
-    it( scenario.keyword + ": "+ scenario.statement, ()=>{
-        currentTest = scenario;
-        scenario.status = "pending";
-        
-        window.SC = {};
-        return cy.then(() =>{
-            //new window.Cypress.Promise(() => {
-                logMe("%c"+scenario.keyword+":: %c" + scenario.statement, "color: red; font-size:16px", "color: black; font-size:normal");
-                _E.beforeScenario(scenario);
-            }).then( () => {
-                const stepPromises = Array(scenario.steps.length);
+function runScenario(scenario, scenarioCount, routeCount){
+    const testStatement = scenario.keyword + ": "+ scenario.statement;
+
+    if(scenario.skip){
+        scenarioCount.count++;
+        scenario.status = "skipped";
+        xit( testStatement, function() {
+            //this.skip();
+        }); 
+    }else{
+
+        it(testStatement, function(){
+            let lastStep;
+            urlChangedCount = 0;
+            scenarioCount.count++;
+            currentTest = scenario;
+            scenario.status = "pending";
+            window.SC = {};
+            
+            //return cy.then( () => {
+            return cy.then( () => {
+                //Execute all the step definitions for this scenario
+                //const stepsPromises = Array(scenario.steps.length);
                 for (let s_i = 0; s_i < scenario.steps.length; s_i++) {
                     const step = scenario.steps[s_i];
-                    //console.log("Running step: ", step.statement);
-                    let startTime = 0;
-                    stepPromises[s_i] = cy.then(() => {
-                            step.status = "pending";
-                            
-                            startTime = Date.now();
-                            currentStep = step;
+                    step.status = "pending";
+                    // currentStep = step;
+                    let startTime;
+                    let skipViaRoute = false;
+                    //stepsPromises[s_i] = cy.then( () => {
+                    cy.then( () => {
+                        //This block doesn't get called for all the steps after failure step
+                        currentStep = step;
+                        startTime = Date.now();
+                        //console.log(`urlChangeCount: ${s_i}, ${urlChangedCount}`);
+                        if( routeCount === undefined || routeCount === 0 || routeCount >= urlChangedCount){
                             runStep(step, s_i+1);
-                            //return startTime;
-                        }).then(() => {
+                        }else if(!skipViaRoute){
+                            scenario.status = lastStep.status;
+                            skipViaRoute = true;
+                            step.status = "skipped"; //to skip from reporting
+                        }else{
+                            step.status = "skipped"; //to skip from reporting
+                        }
+                    }).then( () => {
+                        const endTime = Date.now();
+
+                        if(!skipViaRoute){
                             if(step.status !== "undefined"){
-                                step.duration = Date.now() - startTime;
-    
+                                step.duration = endTime - startTime;
                                 if(step.status === "pending") step.status = "passed";
-                                
-                                scenario.status = step.status;
-                                //_E.afterStep(step)
-                            }else{
-                                scenario.status = step.status;
                             }
-                        });
-                }
-                return window.Cypress.Promise.each( stepPromises, stepPromise => {
-                        //console.log("for each promise");
-                        //console.log(stepPromise);
-                    })
-            //});
-        }).then( () => {
-            _F.debug_cy("After scenario: "+ scenario.statement);
-            _E.afterScenario(scenario)
+                            scenario.status = step.status; //failed, passed, undefined
+                            lastStep = step;
+                        }
+                        scenario.status = step.status;
+                        //return scenario.status;
+                    });
+
+                }//for loop
+                //return Cypress.Promise.each(stepsPromises, stepPromise => {});
+            });
         });
-    })
+    }
 }
 
 function runStep(step, position){
-    const fnDetail = findStepDef(step);
+    const fnDetail = find(step);
                     
     if(!fnDetail){
         const formattedStatement = " 🤦 ~~**" + step.statement + "**~~";
@@ -101,7 +130,7 @@ function runStep(step, position){
             , "background-color: inherit;"
             , "color: inherit; text-decoration: line-through;");
         
-        throw new Error("Step definition is missing for step: " + step.statement);
+            throw new Error("Step definition is missing for step: " + step.statement);
     }else{
         decorateDisplay(step,fnDetail, "**"+ step.statement +"**");
         
@@ -120,6 +149,8 @@ function runStep(step, position){
                 , "background-color: inherit;"
                 , "color: red;");
             throw err;
+            //Silently mark the test failed and skip remaining steps
+            //As sorry-cypress is not able to handle this case
         }
     }
 }
@@ -137,7 +168,7 @@ const failureReporter = err => {
     }
     
     if(err.sourceMappedStack ){
-        currentStep.error_message = err.sourceMappedStack;
+        currentStep.error_message = JSON.stringify(err.sourceMappedStack);
     }else{
         currentStep.error_message = err.message;
     }
@@ -151,6 +182,12 @@ Cypress.on("fail", failureReporter);
 
 
 
+/**
+ * Display text in console when user clicks on the step in left panel
+ * @param {object} step 
+ * @param {function} fnDetail 
+ * @param {string} statement 
+ */
 function decorateDisplay(step,fnDetail, statement){
     const consoleLog = {
         statement: step.statement,
@@ -171,3 +208,7 @@ function decorateDisplay(step,fnDetail, statement){
 
   };
 
+  Cypress.on('url:changed', (newUrl) => {
+    urlChangedCount++;
+    //cy.log("URL changed to", newUrl);
+  })

@@ -2,6 +2,14 @@ function toJSON(arg){
     return JSON.parse(arg);
 }
 
+/**
+ * Convert data-table 2d array to object
+ * input
+ * key | val
+ * key2 | val2
+ * @param {array} dt 
+ * @returns {object}
+ */
 function toObj(dt){
     const obj = {};
     for (let index = 0; index < dt.length; index++) {
@@ -10,6 +18,12 @@ function toObj(dt){
     }
     return obj;
 }
+
+/**
+ * Convert data-table 2d array to 1-d array
+ * @param {array} dt 
+ * @returns {array}
+ */
 function toArr(dt){
     const obj = [];
     for (let index = 0; index < dt.length; index++) {
@@ -21,6 +35,15 @@ function toArr(dt){
     return obj;
 }
 
+/**
+ * Convert data-table 2d array to 1-d array
+ * input
+ * col1 | col2 | col3
+ * val1 | val2 | val3
+ * val4 | val5 | val6
+ * @param {array} dt 
+ * @returns {array}
+ */
 function toListOfObj(dt){
     const list = Array(dt.length -1);
     const header = dt[0];

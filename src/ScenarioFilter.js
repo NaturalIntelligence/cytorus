@@ -1,68 +1,14 @@
 const BexpParser = require("bexp");
-const { forEachFeature, forEachScenarioIn, forEachRule} = require("./Repository");
+const { forEachFeature, forEachScenarioIn, forEachRule} = require("./Iterators");
 
-function filter(featureObj, runConfig){
-    if(runConfig.tags){
-        filterByTagExpression(featureObj, runConfig.tags);
-    }else if(runConfig.include){
-        filterByPosition(featureObj, runConfig.include, true);
-    }else if(runConfig.exclude){
-        filterByPosition(featureObj, runConfig.exclude, false);
-    }else{
-        filterForPriorityTags(featureObj);
-    }
-}
 
-function filterByPosition(featureObj, arr, include){
-    forEachFeature(featureObj, feature => {
-        let positionCounter = 1;
-        const stats = {
-            skipped: 0,
-            total: 0
-        }
-        forEachRule(feature, rule => {
-            forEachScenarioIn( rule , (scenario, i, j) => {
-                const contain = contains(arr, s_i, e_i);
-                if(include && !contain){
-                    scenario.skip= true;
-                    stats.skipped +=1;
-                }else if(!include && contain) {
-                    scenario.skip= true; 
-                    stats.skipped +=1;
-                }
-                positionCounter++;
-            })
-        })
-        stats.total = positionCounter - 1;
-        feature.stats = stats;
-    });
-}
-
-function contains(arr, s_i, e_i){
-    const position = s_i+ (e_i/10);
-    return arr.indexOf(s_i) !== -1 || arr.indexOf(position) !== -1;
-}
-
-function filterByTagExpression(featureObj, tagExpression){
-    const tagExpResolver = new BexpParser("("+tagExpression+") but not @skip");
-
-    forEachFeature(featureObj, feature => {
-        const stats = {
-            skipped: 0,
-            total: 0
-        }
-        forEachRule(feature, rule => {
-            forEachScenarioIn( rule , scenario => {
-                const shouldRun = tagExpResolver.test(feature.tags.concat(scenario.tags));
-                if(!shouldRun){
-                    scenario.skip = true;
-                    stats.skipped++;
-                }
-                stats.total++;
-            })
-        })
-        feature.stats = stats;
-    });
+/**
+ * Exclude disabled scenarios or the scenarios set not to run
+ * @param {object} features Parsed feature file object 
+ * @param {object} runConfig Specify the strategy to exclude tests
+ */
+function filter(features, runConfig = {}){
+    filterForPriorityTags(features);
 }
 
 /**

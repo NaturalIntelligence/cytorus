@@ -5,17 +5,10 @@ const path = require("path");
  * return the list of absolute path of all the files in cypress folder in user's workspace.
  * @returns {string[]}
  */
-function loadAllStepDefinitions(){
-    const appRoot = process.cwd();
-    let pathForStepDefinitions = path.join(appRoot, "cypress/integration/steps");
-    if( !fs.existsSync(pathForStepDefinitions) ){
-        pathForStepDefinitions = path.join(appRoot, "cypress/integration/common");
-        if( !fs.existsSync(pathForStepDefinitions) ){
-            throw new Error("Not able to find folder for step definitions.")
-        }
-    }
-
-    return travers(pathForStepDefinitions, ["js", "ts"], "require('", "');");
+function loadAllStepDefinitions(basePath){
+    const appRoot = basePath || process.cwd();
+    let pathForStepDefinitions = path.join(appRoot, "cypress/integration");
+    return travers(pathForStepDefinitions, [".js", ".ts"], "require('", "');");
 }
 
 /**
@@ -35,7 +28,7 @@ function travers(dir, extArr , prefix, postfix){
             fileArr = fileArr.concat(travers(file, extArr, prefix, postfix) );
         } else {
             const ext = file.substr(file.lastIndexOf("."));
-            if (extArr.indexOf(ext) !== 0) {
+            if (extArr.indexOf(ext) !== -1) {
                 fileArr.push(prefix+ file + postfix);
             }
         }

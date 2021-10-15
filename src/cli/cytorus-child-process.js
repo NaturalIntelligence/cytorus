@@ -1,5 +1,5 @@
-const cypress = require('cypress')
-const {FNs: _F} = require('../../Constants')
+const cypress = require('cypress');
+const { debug } = require('../../Tasks');
 
 let startTime = Date.now();
 
@@ -9,7 +9,7 @@ process.on('message', function(message) {
   cypress[cmd](message.cypressConfig)
   .then((results) => {
     //console.log("completed")
-    _F.debug("Time taken by this specs group: " + (Date.now() - startTime) );
+    debug("Time taken by this set of specs: " + (Date.now() - startTime) );
     process.send({
       child   : process.pid,
       //result  : message + 1

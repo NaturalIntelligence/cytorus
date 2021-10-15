@@ -1,32 +1,64 @@
-//In Browser
-const { processDataTable, processDocString } = require("./ArgInsProcessor");
+//TODO: Use own logic to parse cucumber expressions
 const {
     CucumberExpression,
     RegularExpression,
     ParameterTypeRegistry
   } = require("cucumber-expressions");
+const { processDataTable, processDocString } = require("./ArgInsProcessor");
 
-const regexSteps = [];
+const registry = [];
+const registryForStaticSteps = {};
 const cucumberExpParamsRegistry= new ParameterTypeRegistry();
 
+/**
+ * Register a step definition when code loads
+ * @param {string|Regex} step_exp 
+ * @param {function} fn 
+ */
 function register(step_exp, fn){
     let stepExpRegex;
     if (step_exp instanceof RegExp) {
         stepExpRegex = new RegularExpression( step_exp, cucumberExpParamsRegistry);
-    } else {
+    } else {//TODO: check for type
+        //TODO: save string exp into separate array to speed up discovery
         stepExpRegex = new CucumberExpression(step_exp, cucumberExpParamsRegistry);
+        if(stepExpRegex.regexp.toString() === `/^${step_exp}$/`){
+            registryForStaticSteps[step_exp] = fn;
+            return;
+        }
     }
-    regexSteps.push({
+    registry.push({
         fn: fn,
         statement: stepExpRegex
     });
 }
 
-//TODO: check if the performance can be increased by cache
-function findStep(step){
+/**
+ * Find step definition into the registry.
+ * @param {object} step parsed feature file step
+ */
+function find(step){
+    //TODO: improve performance as number of search for each step is equal to number of step definitions
+    const stepFound = registryForStaticSteps[step.statement];
+    if( stepFound){
+        const fnDetail = {
+            fn: stepFound,
+            exp: step.statement,
+            registered_exp: step.statement
+        }
+        if(step.arg) {
+            processArgument(step);
+            if(step.arg.type === "Other"){
+                fnDetail.arg = step.arg.content;
+            }else{
+                fnDetail.arg = [step.arg.content];
+            }
+        }
+        return fnDetail;
+    }
     let fnDetail;
-    for (let i=0; i < regexSteps.length; i++) {
-        const stepDef = regexSteps[i];
+    for (let i=0; i < registry.length; i++) {
+        const stepDef = registry[i];
         const match = stepDef.statement.match(step.statement);
         if(match){
             
@@ -62,43 +94,7 @@ function processArgument(step){
     }
 }
 
-function forEachFeature(features, cb){
-    for(let f_i=0; f_i < features.length; f_i++){
-        const feature = features[f_i];
-        cb(feature);
-    }
-}
-function forEachRule(feature, cb){
-    for(let i=0; i < feature.rules.length; i++){
-        const rule = feature.rules[i];
-        cb(rule);
-    }
-}
-
-function forEachScenarioIn(rule, cb){
-    for(let i=0; i < rule.scenarios.length; i++){
-        const scenario = rule.scenarios[i];
-        if(scenario.examples){
-            for(let expanded_i=0; expanded_i < scenario.expanded.length; expanded_i++){
-                cb(scenario.expanded[expanded_i], i+1, expanded_i+1);
-            }
-        }else{
-            cb(scenario, i+1, 0);
-        }
-    }
-}
-
-function forEachScenario(featureObj, cb){
-    forEachFeature(featureObj, rule => {
-        forEachScenarioIn( rule , cb)
-    });
-}
-
 module.exports = {
-    findStepDef: findStep,
     register: register,
-    forEachFeature: forEachFeature,
-    forEachRule: forEachRule,
-    forEachScenarioIn: forEachScenarioIn,
-    forEachScenario: forEachScenario
+    find : find
 }
