@@ -1,0 +1,54 @@
+{
+    "lineNumber": 1,
+    "tags": [ "@all" ],
+    "rules": [
+      {
+        "scenarios": [
+          {
+            "keyword": "Scenario Outline",
+            "statement": "scenario  outline with 2 examples",
+            "expanded": [
+              {
+                "keyword": "Scenario Outline",
+                "steps": [],
+                "tags": []
+              },
+              {
+                "keyword": "Scenario Outline",
+                "steps": [
+                ],
+                "tags": []
+              }
+            ],
+            "tags": [],
+            "examples": [
+              {
+                "rows": [ {}, {} ],
+                "tags": []
+              }
+            ],
+            "steps": []
+          },{
+            "keyword": "Scenario",
+            "statement": "scenario  with skip",
+            "steps": [ ],
+            "tags": [ "@only"]
+          },{
+            "keyword": "Scenario",
+            "statement": "Normal scenario",
+            "steps": [ ],
+            "tags": ["@other"]
+          }
+        ]
+      },{
+        "scenarios": [
+            {
+                "keyword": "Scenario",
+                "statement": "Normal scenario in rule 2",
+                "steps": [ ],
+                "tags": ["@other"]
+              }
+        ]
+      }
+    ]
+  }
