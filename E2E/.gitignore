@@ -1,5 +1,0 @@
-node_modules
-.cytorus
-cypress/screenshots
-cypress/integration/cytorus-cache
-cypress/reports/*
