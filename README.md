@@ -1,86 +1,72 @@
 # Cytorus
 
-Cypress Preprocessor
-
-Cytorus is cucumon implementation of Cypress. Cucumon is nothing but gherkin like feature file with a few extra features.
+Cypress File Preprocessor to run Gherkin based tests with some mind blowing features.
 
 ## Features
 
-* **Threshold** based approach to fail a build. This feature is very helpful for CI/CD. Your build can be green with flaky or timebound tests. You can keep the build green for particular features while other failing tests are still being fixed.
-* **Parallel run**: Cytorus analyze the number of parallel processes it can run to run the tests in parallel. However, you can control the limit or parallel features anytime.
-* **Custom Analyzer**: You can wrte your own logic to build reports or to analyze final result.
-* **Cucumon Syntax support**: Cucumon instruction help to reduce code to convert data table and doc strings in other format. 
-    ```fature
-    Given the following query params
-        #> {}
-        | from | XML  |
-        | to   | JSON |
-    ```
+* **Threshold** based approach to pass/fail a build.
+* Run tests for or from a particular **route**.
+* Run tests going through particular route.
+* Run tests from their **position** in test file(s).
+* Run tests for a **User Story**.
+* Write your own **custom reporting** tools/
+* More redable/understanble **datatables**.
+* **Parallel runs**(experimental)
 
-    Step definition will get following converted object;
-    ```js
-    {
-        from: "XML",
-        to: "JSON"
-    }
-    ```
+## Sample Feature file
 
-    `{}`, `[]`, and `[{}]` are currently supported for data table. `json` are supported for doc string.
+```feature
+#!
+Feature: I can order a Pizza
 
-* Cytorus allow you to run tests by their **position** in partifular feature file. It can help you when you have some automation logic to identify tests to run without adding tags or doing any change in the repository.
-* **Debugging**: Cytorus adds informative message with each step to display in command pannel or console logs on Cypress dashboard. You can also run cytorus with debug option `DEBUG=cytorus npx cytorus run`
+Rule: Explore available products
 
-Minor features
-* Cytorus skips tests marked with `@skip`.
-* If some tests are marked with `@only` then other tags will be skipped.
+Scenario: Display Trendy Pizzas
+    #> route: home page; story: US002
+    Given I'm on home page
+    Then I should see the top selling pizzas
 
+@wip
+Scenario: Display Side dishes
+    #> route: home page; story: US001
+    Given I'm on home page
+    Then I should see the list of side dishes
 
-Many features are on the way
+Rule: Find relevant products
 
-## Setup
-Install
-```bash
-$ mkdir project; cd project
-$ npm init -y
+@skip
+Scenario: Search for a pizza
+    #> story: US003
+    Given I'm on any page
+    When I search for "cheese"
+    Then it should result all pizzas
+    When I search for "mushroom"
+    Then it should result following pizzas
+    #>[]
+    | Farm House |
+    | Deluxe Veggie |
+    | Veg Extravaganza |
 
-#install cypress dependencies if you have not installed them yet
-$ sudo apt-get install xvfb libgtk-3-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libgconf2-4
-#install necessary projects
-$ npm install cypress cytorus cytorus-report
+Rule: Create a cart
+
+Scenario: Make an order from home page
+    #> route: home page; story: US004
+    Given I'm on home page
+    #Save order detail in scenario context
+    When I add following items in the cart
+    #> {}
+    | pizza | Farm House  |
+    | extra_toppings   | onion,paneer |
+    #Validate the cart from the order detail in scenario context
+    Then I can see the cart with selected items
 ```
-
-Create the following folder structure
-```
-project
-    |__ cypress
-        |__ integration
-            |__ features
-            |__ steps
-            |__ other
-        |__ fixtures
-        |__ plugins
-        |__ reports
-        |__ support
-    |__ cypress.json
-    |__ cytorus.config.js
-    |__ package.json
-
-```
-
-You can check E2E folder for more detail.
-
-Cytorus is interested in only `cypress/integration/features/`, `cypress/integration/steps/`, and `cytorus.config.js`. Rest config is as per cypress need.
-
-Following configuration is required in `cypress/plugins/index.js`
-
-```js
-const cytorus = require('cytorus');
-module.exports = (on, config) => {
-  cytorus(on, config);
-}
-
-```
-
 ## Documentation
 
-Detail instructions can be found in [docs](/docs).
+1. [Getting Started with application setup](./docs/1.GettingStarted.md)
+2. [Writing Feature File and step definitions](./docs/2.WritingTests.md)
+3. [Scenario Context](./docs/3.Context.md)
+4. [Basic Commands to run the tests](./docs/4.BasicCommands.md)
+5. [Test selection to run particular tests](./docs/5.RunStrategy.md)
+6. [Project configuration to create test stratgey and more](./docs/6.ProjectConfiguration.md)
+7. [Threshold Strategies to keep the builds green ](./docs/7.Threshold.md)
+8. [Run tests in parallel (experimental) ](./docs/8.ParallelRun.md)
