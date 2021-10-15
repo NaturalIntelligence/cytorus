@@ -1,0 +1,95 @@
+[cy2] Running cypress with API URL: http://localhost:1234/
+
+====================================================================================================
+
+  (Run Starting)
+
+  ┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │ Cypress:    8.0.0                                                                              │
+  │ Browser:    Electron 89 (headless)                                                             │
+  │ Specs:      1 found (features/SyntaxError.feature)                                             │
+  │ Searched:   cypress/integration/features/SyntaxError.feature                                   │
+  │ Params:     Tag: false, Group: false, Parallel: true                                           │
+  │ Run URL:    http://localhost:8080/run/33d4a837723cb42014ab825d074f30a2                         │
+  └────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+                                                                                                    
+  Running:  features/SyntaxError.feature                                                    (2 of 1)
+
+Oops...we found an error preparing this test file:
+
+  cypress/integration/features/SyntaxError.feature
+
+The error was:
+
+SyntaxError: Unexpected token
+    at EventEmitter.handler (/home/amit/.cache/Cypress/8.0.0/Cypress/resources/app/packages/server/lib/plugins/util.js:69:27)
+    at EventEmitter.emit (events.js:315:20)
+    at ChildProcess.<anonymous> (/home/amit/.cache/Cypress/8.0.0/Cypress/resources/app/packages/server/lib/plugins/util.js:19:22)
+    at ChildProcess.emit (events.js:315:20)
+    at emit (internal/child_process.js:903:12)
+    at processTicksAndRejections (internal/process/task_queues.js:81:21)
+
+This occurred while Cypress was compiling and bundling your test code. This is usually caused by:
+
+- A missing file or dependency
+- A syntax error in the file or one of its dependencies
+
+Fix the error in your code and re-run your tests.
+
+  (Results)
+
+  ┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │ Tests:        0                                                                                │
+  │ Passing:      0                                                                                │
+  │ Failing:      1                                                                                │
+  │ Pending:      0                                                                                │
+  │ Skipped:      0                                                                                │
+  │ Screenshots:  0                                                                                │
+  │ Video:        false                                                                            │
+  │ Duration:     0 seconds                                                                        │
+  │ Spec Ran:     features/SyntaxError.feature                                                     │
+  └────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+
+  (Uploading Results)
+
+We encountered an unexpected error talking to our servers.
+
+We will retry 3 more times in 30 seconds...
+
+The server's response was:
+
+RequestError: Error: ESOCKETTIMEDOUT
+We encountered an unexpected error talking to our servers.
+
+We will retry 2 more times in 1 minute...
+
+The server's response was:
+
+RequestError: Error: ESOCKETTIMEDOUT
+We encountered an unexpected error talking to our servers.
+
+We will retry 1 more time in 2 minutes...
+
+The server's response was:
+
+RequestError: Error: ESOCKETTIMEDOUT
+We encountered an unexpected error talking to our servers.
+
+We will retry 0 more times in ...
+
+The server's response was:
+
+RequestError: Error: ESOCKETTIMEDOUT
+We encountered an unexpected error talking to our servers.
+
+Because you passed the --parallel flag, this run cannot proceed because it requires a valid response from our servers.
+
+The --ciBuildId flag you passed was: 8
+
+The server's response was:
+
+RequestError: Error: ESOCKETTIMEDOUT

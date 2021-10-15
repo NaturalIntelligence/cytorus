@@ -1,0 +1,28 @@
+{
+  "name": "test-repository",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha tests/*spec.js",
+    "all": "cytorus run",
+    "allParallel": "cytorus run -p true",
+    "plainReport": "node cucumber-report-reader.js",
+    "multiReport": "node multi-cucumber-report.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cy2": "^1.2.1",
+    "cypress": "^8.3.1",
+    "cytorus": "file:../cytorus-0.2.1.tgz",
+    "cytorus-reporter": "^1.1.1"
+  },
+  "devDependencies": {
+    "chai": "^4.3.4",
+    "cucumber-html-reporter": "^5.4.0",
+    "mocha": "^8.4.0",
+    "multiple-cucumber-html-reporter": "^1.18.0"
+  }
+}
