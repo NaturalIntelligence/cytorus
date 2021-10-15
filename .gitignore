@@ -1,2 +1,5 @@
 node_modules
 *.tgz
+TODO.md
+package-lock.json
+cypress/integration/cytorus-cache/
