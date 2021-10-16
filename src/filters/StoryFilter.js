@@ -22,8 +22,8 @@ function filter(features, story){
             }
         }
         if(filteredRules.length > 0){
+            feature.rules = filteredRules;
             filteredFeatures.push(feature);
-            filteredFeatures.rules = filteredRules;
         }
     }
     return filteredFeatures;
