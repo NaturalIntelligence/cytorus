@@ -1,6 +1,6 @@
 {
   "name": "cytorus",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Cytorus is a cypress file preprocessor to run tests from feature files",
   "main": "src/cytorus.js",
   "bin": {
@@ -18,7 +18,8 @@
     "gherkin",
     "threshold",
     "e2e",
-    "parallel"
+    "parallel",
+    "tests"
   ],
   "repository": {
     "type": "git",
