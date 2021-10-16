@@ -11,9 +11,15 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "js file",
-            "program": "${workspaceFolder}/temp/temp.js",
-            "cwd": "${workspaceFolder}"
+            "runtimeVersion": "14.17.0",
+            "name": "Debug Cytorus",
+            "program": "node_modules/cytorus/cli.js",
+            "cwd": "~/git/cytorus/test-repository",
+            "args": [
+                "run",
+                "--story", "US004",
+                "--spec",         "cypress/integration/features/pizza.feature"
+            ],
         },{
             "type": "node",
             "request": "launch",
