@@ -11,17 +11,17 @@
     for(let f_i=0; f_i < features.length; f_i++){
         const feature = features[f_i];
         const filteredRules = [];
-
+        let s_gi = 0;
         for(let r_i=0; r_i < feature.rules.length; r_i++){
             const rule = feature.rules[r_i];
             const filteredScenarios = [];
 
-            for(let s_i=0; s_i < rule.scenarios.length; s_i++){
-                const scenario = rule.scenarios[s_i];
-                const contain = contains(arr, s_i, e_i);
+            for(let s_i=0; s_i < rule.scenarios.length; s_i++,s_gi++){
+                const contain = contains(arr, s_gi, e_i);
                 if( (include && !contain) || (!include && contain)){
                     continue;
                 }else{
+                    const scenario = rule.scenarios[s_i];
                     filteredScenarios.push(scenario);
                 }
             }
@@ -31,8 +31,8 @@
             }
         }//loop rules
         if(filteredRules.length > 0){
+            feature.rules = filteredRules;
             filteredFeatures.push(feature);
-            filteredFeatures.rules = filteredRules;
         }
     }
     return filteredFeatures;

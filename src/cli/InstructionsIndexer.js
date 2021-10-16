@@ -27,15 +27,16 @@ function index(features){
     for(let f_i=0; f_i < features.length; f_i++){
         const feature = features[f_i];
         feature.only = [];
+        let s_gi = 0;
         for(let r_i=0; r_i < feature.rules.length; r_i++){
             const rule = feature.rules[r_i];
-            for(let s_i=0; s_i < rule.scenarios.length; s_i++){
+            for(let s_i=0; s_i < rule.scenarios.length; s_i++,s_gi++){
                 const scenario = rule.scenarios[s_i];
-                if(scenario.tags.indexOf("@only")) feature.only.push(s_i);
+                if(scenario.tags.indexOf("@only")) feature.only.push(s_gi);
                 for (let i = 0; i < scenario.steps.length; i++) {
                     const step = scenario.steps[i];
                     if(step.instruction){
-                        processInstruction(step.instruction, feature,  s_i, i);
+                        processInstruction(step.instruction, feature,  s_gi, i);
                     }
                 }//steps loop
             }//scenarios loop

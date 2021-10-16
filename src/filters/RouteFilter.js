@@ -6,13 +6,13 @@ function filter(features, routeName, route, viaRoute, skipSteps){
 
         const filteredRules = [];
         const markedScenarios = route[feature.fileName];
-
+        let s_gi = 0;
         for(let r_i=0; r_i < feature.rules.length; r_i++){
             const rule = feature.rules[r_i];
             const filteredScenarios = [];
             for(let s_i=0; s_i < rule.scenarios.length; s_i++){
                 const scenario = rule.scenarios[s_i];
-                selectQualifiedScenario(markedScenarios, filteredScenarios, scenario, s_i,  viaRoute,  skipSteps, routeName);
+                selectQualifiedScenario(markedScenarios, filteredScenarios, scenario, s_gi,  viaRoute,  skipSteps, routeName);
             }
             if(filteredScenarios.length > 0){
                 rule.scenarios = filteredScenarios;
@@ -20,8 +20,8 @@ function filter(features, routeName, route, viaRoute, skipSteps){
             }
         }//loop rules
         if(filteredRules.length > 0){
+            feature.rules = filteredRules;
             filteredFeatures.push(feature);
-            filteredFeatures.rules = filteredRules;
         }
     }
     return filteredFeatures;
