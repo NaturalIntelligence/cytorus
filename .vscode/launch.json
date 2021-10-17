@@ -14,10 +14,12 @@
             "runtimeVersion": "14.17.0",
             "name": "Debug Cytorus",
             "program": "node_modules/cytorus/cli.js",
-            "cwd": "~/git/cytorus/test-repository",
+            "cwd": "/home/amit/git/cytorus/test-repository",
             "args": [
                 "run",
-                "--story", "US004",
+                // "--story", "US004",
+                // "--via", "product page",
+                "--only", "5",
                 "--spec",         "cypress/integration/features/pizza.feature"
             ],
         },{
