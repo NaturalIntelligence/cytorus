@@ -1,4 +1,7 @@
+const { debug } = require("../../../../../Tasks");
+
 function filter(features, routeName, route, viaRoute, skipSteps){
+    debug("Filtering for route:", + routeName);
     const filteredFeatures = [];
     for(let f_i=0; f_i < features.length; f_i++){
         const feature = features[f_i];
@@ -10,7 +13,7 @@ function filter(features, routeName, route, viaRoute, skipSteps){
         for(let r_i=0; r_i < feature.rules.length; r_i++){
             const rule = feature.rules[r_i];
             const filteredScenarios = [];
-            for(let s_i=0; s_i < rule.scenarios.length; s_i++){
+            for(let s_i=0; s_i < rule.scenarios.length; s_i++, s_gi++){
                 const scenario = rule.scenarios[s_i];
                 selectQualifiedScenario(markedScenarios, filteredScenarios, scenario, s_gi,  viaRoute,  skipSteps, routeName);
             }
