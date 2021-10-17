@@ -1,6 +1,6 @@
 {
   "name": "cytorus",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Cytorus is a cypress file preprocessor to run tests from feature files",
   "main": "src/cytorus.js",
   "bin": {
