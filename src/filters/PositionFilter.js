@@ -17,12 +17,24 @@
             const filteredScenarios = [];
 
             for(let s_i=0; s_i < rule.scenarios.length; s_i++,s_gi++){
-                const contain = contains(arr, s_gi, e_i);
-                if( (include && !contain) || (!include && contain)){
-                    continue;
+                const scenario = rule.scenarios[s_i];
+                let doesContains = false;
+                if(scenario.examples){
+                    for(let e_i=0; e_i < scenario.expanded.length; e_i++){
+                        doesContains = contains(arr, s_gi, e_i);
+                        if( (include && !doesContains) || (!include && doesContains)){
+                            continue;
+                        }else{
+                            filteredScenarios.push(scenario.expanded[e_i]);
+                        }
+                    }
                 }else{
-                    const scenario = rule.scenarios[s_i];
-                    filteredScenarios.push(scenario);
+                    doesContains = contains(arr, s_gi, 0);
+                    if( (include && !doesContains) || (!include && doesContains)){
+                        continue;
+                    }else{
+                        filteredScenarios.push(scenario);
+                    }
                 }
             }
             if(filteredScenarios.length > 0){
