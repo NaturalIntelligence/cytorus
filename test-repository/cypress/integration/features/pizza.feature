@@ -46,3 +46,32 @@ Scenario: Make an order from home page
     | extra_toppings   | onion,paneer |
     #Validate the cart from the order detail in scenario context
     Then I can see the cart with selected items
+
+@multi
+Scenario Outline: Order <pizza> pizza from product page 
+    #> route: home page;
+    Given I'm on home page
+    #> route: product page; story: US005
+    And I see detail of "<pizza>" pizza
+    #Save order detail in scenario context
+    When I add a pizza in the cart
+    #Validate the cart from the order detail in scenario context
+    Then I can see the cart with selected items
+
+    Examples:
+    | pizza |
+    | Farm House |
+    | Mexican Green Wave |
+
+    Examples:
+    | pizza |
+    | Veg Extravaganza |
+    | Peppy Paneer |
+
+Scenario: Make an order from product page b
+    #> route: product page; story: US005
+    Given I'm on "Farm House" pizza page
+    #Save order detail in scenario context
+    When I add a pizza in the cart
+    #Validate the cart from the order detail in scenario context
+    Then I can see the cart with selected items
