@@ -19,21 +19,33 @@ const { forEachFeature, forEachScenarioIn, forEachRule} = require("../Iterators"
 
             for(let s_i=0; s_i < rule.scenarios.length; s_i++){
                 const scenario = rule.scenarios[s_i];
-                const shouldRun = tagExpResolver.test(feature.tags.concat(scenario.tags));
-                if(shouldRun){
-                    filteredScenarios.push(scenario);
+                let shouldRun = false;
+                if(scenario.examples){
+                    for(let e_i=0; e_i < scenario.expanded.length; e_i++){
+                        const shouldRun = tagExpResolver.test(feature.tags.concat(scenario.expanded[e_i].tags));
+                        if(shouldRun){
+                            filteredScenarios.push(scenario.expanded[e_i]);
+                        }else{
+                            continue;
+                        }
+                    }
                 }else{
-                    continue;
+                    const shouldRun = tagExpResolver.test(feature.tags.concat(scenario.tags));
+                    if(shouldRun){
+                        filteredScenarios.push(scenario);
+                    }else{
+                        continue;
+                    }
                 }
-            }
+}
             if(filteredScenarios.length > 0){
                 rule.scenarios = filteredScenarios;
                 filteredRules.push(rule);
             }
         }//loop rules
         if(filteredRules.length > 0){
+            feature.rules = filteredRules;
             filteredFeatures.push(feature);
-            filteredFeatures.rules = filteredRules;
         }
     }
     return filteredFeatures;
