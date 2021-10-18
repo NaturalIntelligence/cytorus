@@ -60,6 +60,15 @@ Scenario: Make an order from home page
     #Validate the cart from the order detail in scenario context
     Then I can see the cart with selected items
 ```
+## Some useful commands
+
+```bash
+$ npx cytorus run --story "US004"
+$ npx cytorus run --tags "not @wip"
+$ npx cytorus run --from "product page"
+$ npx cytorus run --not-via "home page"
+```
+
 ## Documentation
 
 1. [Getting Started with application setup](./docs/1.GettingStarted.md)
