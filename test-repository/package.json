@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "private": true,
   "scripts": {
     "test": "mocha tests/*spec.js",
     "all": "cytorus run",
@@ -16,8 +17,8 @@
   "dependencies": {
     "cy2": "^1.2.1",
     "cypress": "^8.3.1",
-    "cytorus": "file:../cytorus-0.2.1.tgz",
-    "cytorus-reporter": "^1.1.1"
+    "cytorus": "file:../cytorus-0.2.6.tgz",
+    "cytorus-reporter": "^1.2.1"
   },
   "devDependencies": {
     "chai": "^4.3.4",

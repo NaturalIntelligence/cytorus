@@ -2,6 +2,8 @@
 const {find} = require("./Registry");
 const { saveResult } = require("./Report");
 const { cliLog } = require("./../Tasks");
+const { features: featuresPath } = require("./../paths");
+const path = require("path");
 
 let currentTest = {};
 let currentStep = {};
@@ -94,7 +96,9 @@ function runScenario(scenario, scenarioCount, routeCount){
                         }else{
                             step.status = "skipped"; //to skip from reporting
                         }
+                        //this line will not be called in case of error
                     }).then( () => {
+                        //This code is not called in case of undefined, failure, error
                         const endTime = Date.now();
 
                         if(!skipViaRoute){
@@ -108,7 +112,7 @@ function runScenario(scenario, scenarioCount, routeCount){
                         scenario.status = step.status;
                         //return scenario.status;
                     });
-
+                   
                 }//for loop
                 //return Cypress.Promise.each(stepsPromises, stepPromise => {});
             });
@@ -172,14 +176,25 @@ const failureReporter = err => {
     }else{
         currentStep.error_message = err.message;
     }
+
+    //currentStep.rawErr = err;
     
     // returning false here prevents Cypress from failing the test
     throw err;
 };
 
 Cypress.on("fail", failureReporter);
-
-
+// Cypress.on('after:screenshot', (details) => {
+//     //this doesn't work in case of failure
+//     currentStep.screenshot = details.path;
+//  })
+  
+Cypress.Screenshot.defaults({
+    onAfterScreenshot($el, props) {
+        currentStep.screenshot = props.path;
+    },
+})
+  
 
 
 /**

@@ -11,9 +11,11 @@ async function generateReport(){
         fs.mkdirSync( cucumerReportsPath, { recursive: true});
     }
 
-    const sourcePath =  path.join(  __dirname, "../" ,paths.features ) ;
+    // const sourcePath =  path.join(  __dirname, "../" ,paths.features ) ;
     const jsonDir =  path.join(  __dirname, "../" , paths.report.detailed);
-    const cucumerReporter = new CucumerReporter(cucumerReportsPath, sourcePath, jsonDir);
+    const cucumerReporter = new CucumerReporter(cucumerReportsPath, jsonDir, {
+        screenshot: true
+    });
     await cucumerReporter.report();
 }
 
