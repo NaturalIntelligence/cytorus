@@ -14,7 +14,7 @@ async function generateReport(){
     // const sourcePath =  path.join(  __dirname, "../" ,paths.features ) ;
     const jsonDir =  path.join(  __dirname, "../" , paths.report.detailed);
     const cucumerReporter = new CucumerReporter(cucumerReportsPath, jsonDir, {
-        screenshot: true
+        screenshot: false
     });
     await cucumerReporter.report();
 }

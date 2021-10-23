@@ -63,6 +63,7 @@ Scenario Outline: Order <pizza> pizza from product page
     | Farm House |
     | Mexican Green Wave |
 
+@2nd
     Examples:
     | pizza |
     | Veg Extravaganza |

@@ -19,7 +19,9 @@
                 "run",
                 // "--story", "US004",
                 // "--via", "product page",
-                "--only", "5",
+                // "--only", "5",
+                // "--tags", "@multi and not @2nd",
+                "--tags", "@2nd",
                 "--spec",         "cypress/integration/features/pizza.feature"
             ],
         },{
