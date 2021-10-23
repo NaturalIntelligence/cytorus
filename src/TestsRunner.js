@@ -4,6 +4,7 @@ const { saveResult } = require("./Report");
 const { cliLog } = require("./../Tasks");
 const { features: featuresPath } = require("./../paths");
 const path = require("path");
+const toNumber = require("strnum");
 
 let currentTest = {};
 let currentStep = {};
@@ -62,8 +63,7 @@ function runScenario(scenario, scenarioCount, routeCount){
             //this.skip();
         }); 
     }else{
-
-        it(testStatement, function(){
+        it(testStatement, insToObj(scenario.instruction), function(){
             let lastStep;
             urlChangedCount = 0;
             scenarioCount.count++;
@@ -77,6 +77,12 @@ function runScenario(scenario, scenarioCount, routeCount){
                 //const stepsPromises = Array(scenario.steps.length);
                 for (let s_i = 0; s_i < scenario.steps.length; s_i++) {
                     const step = scenario.steps[s_i];
+                    //unset properties before retry
+                    if(step.status){
+                        delete step.screenshot;
+                        delete step.error_message;
+                    }
+
                     step.status = "pending";
                     // currentStep = step;
                     let startTime;
@@ -119,6 +125,7 @@ function runScenario(scenario, scenarioCount, routeCount){
         });
     }
 }
+
 
 function runStep(step, position){
     const fnDetail = find(step);
@@ -164,6 +171,29 @@ function logMe(){
     
 }
 
+/**
+ * @param {string} insStr 
+ */
+function insToObj(insStr){
+    const obj = {};
+    if(insStr){
+        const allInstructions = insStr.split(";");
+        allInstructions.forEach(instruction => {
+            const entity = instruction.split(":");
+            retriesConfig(entity, obj);
+        });
+    }
+    return obj;
+}
+
+function retriesConfig(entity, obj){
+    if(entity[0].trim() === "retries"){
+        obj.retries = {
+            runMode: toNumber(entity[1]),
+            openMode: 1,
+        }
+    }
+}
 //this will catch cypress error like when an element is not found or page takes time to load
 const failureReporter = err => {
     if( currentStep.status !== "undefined") {

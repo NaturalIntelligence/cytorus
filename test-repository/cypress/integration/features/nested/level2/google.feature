@@ -1,10 +1,9 @@
 @tag
 Feature: Search on Google page
   
-  #>retries:2
   Scenario: simple
     Given I open https://www.google.com/
-    Then I type list of products  
+    Then I typ list of products 
     And Search
   
   @skip

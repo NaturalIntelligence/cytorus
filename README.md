@@ -80,3 +80,4 @@ $ npx cytorus run --not-via "home page"
 7. [Threshold Strategies to keep the builds green ](./docs/7.Threshold.md)
 8. [Run tests in parallel (experimental) ](./docs/8.ParallelRun.md)
 9. [Reports ](./docs/9.Reports.md)
+10. [Miscellaneous ](./docs/10.Miscellaneous.md)

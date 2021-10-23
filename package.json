@@ -1,6 +1,6 @@
 {
   "name": "cytorus",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "description": "Cytorus is a cypress file preprocessor to run tests from feature files",
   "main": "src/cytorus.js",
   "bin": {
@@ -29,11 +29,12 @@
   "license": "MIT",
   "dependencies": {
     "@cypress/browserify-preprocessor": "^3.0.1",
-    "axios": "^0.21.1",
+    "axios": "^0.21.4",
     "bexp": "^1.0.2",
     "cucumber-expressions": "^8.3.0",
-    "cucumon": "^1.4.1",
-    "glob": "^7.1.7",
+    "cucumon": "^1.4.2",
+    "glob": "^7.2.0",
+    "strnum": "^1.0.4",
     "through": "^2.3.8"
   },
   "devDependencies": {
