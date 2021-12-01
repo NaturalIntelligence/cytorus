@@ -15,7 +15,8 @@ const path = require('path');
 const runCy2 = function (spec, fromCli, projectConfig, count) {
   debug("Before returning the npx cy2 promise");
   return new Promise(  (resolve, reject) => {
-    const proc = spawn("npx", buildCmd(projectConfig, spec, fromCli, count) );
+
+    const proc = spawn("npx", buildCmd(projectConfig, spec, fromCli, count) , {shell: process.platform == 'win32'});
     proc.stdout.on('data', (data) => {
       console.log(data.toString()); //chunk data
     });
