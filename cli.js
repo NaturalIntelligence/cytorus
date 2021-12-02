@@ -38,10 +38,24 @@ if(process.argv.indexOf("-h") !== -1 || process.argv.indexOf("--help") !== -1){
  * Clean cytorus working directory and cache folder
  */
  function setupWorkSpace(){
-  fs.rmdirSync( paths.cache                      , { recursive: true});
-  fs.rmdirSync( paths.WD                          , { recursive: true});
+  emptyDirSync( paths.cache                      , { recursive: true});
+  emptyDirSync( paths.WD                          , { recursive: true});
   
   fs.mkdirSync( paths.cache                      , { recursive: true});
   fs.mkdirSync( paths.report.minimal    , { recursive: true});
   fs.mkdirSync( paths.report.detailed    , { recursive: true});
+}
+
+const emptyDirSync = location => {
+  const files = fs.readdirSync(location); 
+  for (const file of files) {
+    const filePath = path.join(location, file);
+    const stats = await fs.stat(filePath)
+
+    if(stats.isDirectory()){
+      emptyDirSync(filePath);
+    }else{
+      fs.unlinkSync(filePath);
+    }
+  }
 }
