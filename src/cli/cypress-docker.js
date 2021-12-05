@@ -13,7 +13,7 @@ const { debug } = require('../../Tasks');
 const runDockerCypress = function (spec, fromCli, projectConfig) {
   debug("Before returning the docker command");
   return new Promise(  (resolve, reject) => {
-    const proc = spawn("docker", buildDockerCmd(projectConfig, spec, fromCli) );
+    const proc = spawn("docker", buildDockerCmd(projectConfig, spec, fromCli) , {shell: process.platform == 'win32'});
     proc.stdout.on('data', (data) => {
       console.log(data.toString()); //chunk data
     });

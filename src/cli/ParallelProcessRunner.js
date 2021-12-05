@@ -1,7 +1,7 @@
 let child_process = require('child_process');
 let path = require('path');
 const {debug} = require('./../../Tasks');
-// const runCypressDocker = require("./cypress-docker");
+const runCypressDocker = require("./cypress-docker");
 const runCy2 = require("./parallel-cypress");
 
 /**
@@ -15,13 +15,15 @@ async function runTests(cachedSpecs, fromCli, projConfig, postRun) {
     const cmdPromises = [];
     fromCli.build = fromCli.build || randomBuildId();
     for (let i = 0; i < cachedSpecs.length; i++) {
-
-        // dockerCmdPromises.push(
-        //     runCypressDocker(cachedSpecs[i], fromCli, projConfig)
-        // );
-        cmdPromises.push(
-            runCy2(cachedSpecs[i], fromCli, projConfig, cachedSpecs.length)
-        );
+        if(fromCli.docker){
+            cmdPromises.push(
+                runCypressDocker(cachedSpecs[i], fromCli, projConfig)
+            );
+        }else{
+            cmdPromises.push(
+                runCy2(cachedSpecs[i], fromCli, projConfig, cachedSpecs.length)
+            );
+        }
     }
 
     Promise.all(cmdPromises).then( async () => {

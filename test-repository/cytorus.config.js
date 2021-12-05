@@ -3,6 +3,15 @@ const generateCucumberReport = require('./config/cucumberReport');
 const localApp = require("./local-app/server");
 module.exports = {
     runConfig: {
+        docker: {
+            //env: [ "CYPRESS_RECORD_KEY",  "CYPRESS_VIDEO" ],
+            //env: [ "ELECTRON_RUN_AS_NODE"],
+            //env: [ "DISPLAY"],
+            args : {
+                "--network": "host"
+            },
+            // "cypress" : "7.3.0",
+        },
         tian: {
             url: "http://localhost:3377/api/projects/articlestack-chrome/builds"
         },

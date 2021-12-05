@@ -86,6 +86,8 @@ function buildConfig(args){
       config.skipThreshold = true;
     }else if(arg === "--cy2"){
       config.cy2 = true;
+    }else if(arg === "--docker"){
+      config.docker = true;
     }else{
       cypressArgs.push(args[i]);
     }
