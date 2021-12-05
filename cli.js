@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 const paths = require('./paths');
 const fs = require("fs");
+const path = require("path");
 
 if(process.argv.indexOf("-h") !== -1 || process.argv.indexOf("--help") !== -1){
   console.log( require('./src/cli/inlineHelpContent') );
@@ -32,7 +33,19 @@ if(process.argv.indexOf("-h") !== -1 || process.argv.indexOf("--help") !== -1){
   main();
 }
 
+function emptyDirSync(location){
+  const files = fs.readdirSync(location); 
+  for (const file of files) {
+    const filePath = path.join(location, file);
+    const stats = fs.statSync(filePath)
 
+    if(stats.isDirectory()){
+      emptyDirSync(filePath);
+    }else{
+      fs.unlinkSync(filePath);
+    }
+  }
+}
 /**
  * Setup workspace for cytorus.
  * Clean cytorus working directory and cache folder
@@ -44,18 +57,4 @@ if(process.argv.indexOf("-h") !== -1 || process.argv.indexOf("--help") !== -1){
   fs.mkdirSync( paths.cache                      , { recursive: true});
   fs.mkdirSync( paths.report.minimal    , { recursive: true});
   fs.mkdirSync( paths.report.detailed    , { recursive: true});
-}
-
-const emptyDirSync = location => {
-  const files = fs.readdirSync(location); 
-  for (const file of files) {
-    const filePath = path.join(location, file);
-    const stats = await fs.stat(filePath)
-
-    if(stats.isDirectory()){
-      emptyDirSync(filePath);
-    }else{
-      fs.unlinkSync(filePath);
-    }
-  }
 }
