@@ -1,4 +1,3 @@
-const BexpParser = require("bexp");
 const { forEachFeature, forEachScenarioIn, forEachRule} = require("./Iterators");
 
 

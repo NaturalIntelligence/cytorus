@@ -146,7 +146,7 @@ function getSelector(strategy){
 }
 class TagExpSelector{
     constructor(tagExpression){
-        this.tagExpResolver = new BexpParser(tagExpression);
+        this.tagExpResolver = new BexpParser(tagExpression, {allowMathOperators:false});
     }
 
     test(feature, scenario){
