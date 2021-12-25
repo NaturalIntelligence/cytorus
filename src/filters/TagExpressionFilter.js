@@ -7,7 +7,7 @@ const { forEachFeature, forEachScenarioIn, forEachRule} = require("../Iterators"
  * @param {string} tagExpression 
  */
  function filter(features, tagExpression){
-    const tagExpResolver = new BexpParser("("+tagExpression+") but not @skip");
+    const tagExpResolver = new BexpParser("("+tagExpression+") but not @skip", {allowMathOperators:false});
     const filteredFeatures = [];
     for(let f_i=0; f_i < features.length; f_i++){
         const feature = features[f_i];
