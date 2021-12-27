@@ -17,7 +17,7 @@
   "dependencies": {
     "cy2": "^1.2.1",
     "cypress": "^8.3.1",
-    "cytorus": "file:../cytorus-0.2.8.tgz",
+    "cytorus": "file:../cytorus-0.2.11.tgz",
     "cytorus-reporter": "^1.2.1"
   },
   "devDependencies": {

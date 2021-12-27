@@ -34,6 +34,7 @@ if(process.argv.indexOf("-h") !== -1 || process.argv.indexOf("--help") !== -1){
 }
 
 function emptyDirSync(location){
+  if(!fs.existsSync(location)) return;
   const files = fs.readdirSync(location); 
   for (const file of files) {
     const filePath = path.join(location, file);
