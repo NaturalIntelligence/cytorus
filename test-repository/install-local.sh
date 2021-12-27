@@ -1,6 +1,7 @@
 #!/bin/bash
 
 cd ..
+version=$(node -e 'console.log(require("./package.json").version)')
 npm pack .
 cd test-repository
-npm install ../cytorus-0.2.9.tgz
+npm install ../cytorus-$version.tgz
