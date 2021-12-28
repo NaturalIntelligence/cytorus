@@ -56,13 +56,13 @@
  * * 1.2 presents in [ 1.2, 3, 5 ] => returns true
  * * 1.2 presents in [ 1, 3, 5 ] => returns true
  * * 1.1 presents in [ 1.2, 3, 5 ] => returns false
- * @param {array} arr 
+ * @param {array} arr array of position strings
  * @param {number} s_i scenario index
  * @param {number} e_i example index
  */
  function contains(arr, s_i, e_i){
-    const position = s_i+ (e_i/10);
-    return arr.indexOf(s_i) !== -1 || arr.indexOf(position) !== -1;
+    const position = s_i + "." + e_i;
+    return arr.indexOf(s_i.toString()) !== -1 || arr.indexOf(position) !== -1;
 }
 
 module.exports = filter;
