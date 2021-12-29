@@ -43,9 +43,9 @@ function buildConfig(args){
     }else if(arg === "--tags"){
       filterConfig.tags = args[++i];
     }else if(arg === "--only"){
-      filterConfig.include = args[++i].split(",").map( n => +n);
+      filterConfig.include = args[++i].split(",");
     }else if(arg === "--skip"){
-      filterConfig.exclude = args[++i].split(",").map( n => +n);
+      filterConfig.exclude = args[++i].split(",");
     }else if(arg === "--run-config"){ //combination of tags, specs, include, exclude
       config.runConfig = require( args[++i] );
     }else if(arg === "--parallel"){
