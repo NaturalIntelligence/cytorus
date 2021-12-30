@@ -1,7 +1,7 @@
 {
   "name": "cytorus",
-  "version": "0.2.12",
-  "description": "Cytorus is a cypress file preprocessor to run tests from feature files",
+  "version": "0.2.13",
+  "description": "Gherkin syntaxed feature file test runner using Cypress. Run tests for a particular story, route, or by their position. Define your own test strategy & reports.",
   "main": "src/cytorus.js",
   "bin": {
     "cytorus": "./cli.js"
