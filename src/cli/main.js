@@ -85,15 +85,15 @@ async function main(){
     //filter by skip
     
     if(fromCli.runConfig.tags){
-        filterByTagExpression(features, fromCli.runConfig.tags);
+        features = filterByTagExpression(features, fromCli.runConfig.tags);
         debug("Filtered based on tag expression");
         debug("Features to test:" + features.length);
     }else if(fromCli.runConfig.include){
-        filterByPosition(features, fromCli.runConfig.include, true);
+        features = filterByPosition(features, fromCli.runConfig.include, true);
         debug("Filtered based on --only");
         debug("Features to test:" + features.length);
     }else if(fromCli.runConfig.exclude){
-        filterByPosition(features, fromCli.runConfig.exclude, false);
+        features = filterByPosition(features, fromCli.runConfig.exclude, false);
         debug("Filtered based on --skip");
         debug("Features to test:" + features.length);
     }else{

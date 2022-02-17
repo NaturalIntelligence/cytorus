@@ -1,5 +1,6 @@
 const BexpParser = require("bexp");
 const { forEachFeature, forEachScenarioIn, forEachRule} = require("../Iterators");
+const { debug } = require("../../Tasks");
 
 /**
  * Skip tests as per given tag expression
@@ -7,7 +8,9 @@ const { forEachFeature, forEachScenarioIn, forEachRule} = require("../Iterators"
  * @param {string} tagExpression 
  */
  function filter(features, tagExpression){
-    const tagExpResolver = new BexpParser("("+tagExpression+") but not @skip", {allowMathOperators:false});
+    const bexp_exp = "("+tagExpression+") but not @skip";
+    debug("Tag expression:" + bexp_exp);
+    const tagExpResolver = new BexpParser(bexp_exp, {allowMathOperators:false});
     const filteredFeatures = [];
     for(let f_i=0; f_i < features.length; f_i++){
         const feature = features[f_i];
@@ -20,24 +23,30 @@ const { forEachFeature, forEachScenarioIn, forEachRule} = require("../Iterators"
             for(let s_i=0; s_i < rule.scenarios.length; s_i++){
                 const scenario = rule.scenarios[s_i];
                 let shouldRun = false;
-                if(scenario.examples){
+                if(scenario.examples){//Scenario Outline
                     for(let e_i=0; e_i < scenario.expanded.length; e_i++){
-                        const shouldRun = tagExpResolver.test(feature.tags.concat(scenario.expanded[e_i].tags));
+                        const exp_to_check = feature.tags.concat(scenario.expanded[e_i].tags)
+                        const shouldRun = tagExpResolver.test(exp_to_check);
                         if(shouldRun){
+                            debug("Including scenario with tags: " + exp_to_check);
                             filteredScenarios.push(scenario.expanded[e_i]);
                         }else{
+                            debug("Excluding test with tags: " + exp_to_check);
                             continue;
                         }
                     }
-                }else{
-                    const shouldRun = tagExpResolver.test(feature.tags.concat(scenario.tags));
+                }else{//Scenario
+                    const exp_to_check = feature.tags.concat(scenario.tags);
+                    const shouldRun = tagExpResolver.test(exp_to_check);
                     if(shouldRun){
+                        debug("Including scenario with tags: " + exp_to_check);
                         filteredScenarios.push(scenario);
                     }else{
+                        debug("Excluding test with tags: " + exp_to_check);
                         continue;
                     }
                 }
-}
+            }//scenario loop end
             if(filteredScenarios.length > 0){
                 rule.scenarios = filteredScenarios;
                 filteredRules.push(rule);
