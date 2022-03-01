@@ -1,6 +1,7 @@
 @params
 Feature: Support cucumber expression
 
+@builtin
 Scenario: default paramters
     # I buy {int} {string}(s) in ₹{float}
     Given I buy 4 balls in ₹300
@@ -11,9 +12,9 @@ Scenario: default paramters
     And I select "red" color
     And I select "red color"
 
-
-# Scenario: custom paramters
-#     # I have {color} {string}(s)
-#     Given I have red balls
-#     And I use custom paramters to select values
-#     Then I can use the selected data later
+@custom
+Scenario: custom paramters
+    # I have {color} {string}(s)
+    Given I have red balls
+    And I use custom paramters to select values
+    Then I can use the selected data later

@@ -2,6 +2,7 @@
 const {
     CucumberExpression,
     RegularExpression,
+    ParameterType,
     ParameterTypeRegistry
   } = require("cucumber-expressions");
 const { processDataTable, processDocString } = require("./ArgInsProcessor");
@@ -94,7 +95,28 @@ function processArgument(step){
     }
 }
 
+const defineParameterType = ({
+    name,
+    regexp,
+    transformer,
+    useForSnippets,
+    preferForRegexpMatch
+}) => {
+    if(typeof useForSnippets !== Boolean) useForSnippets = true;
+    if(typeof preferForRegexpMatch !== Boolean) preferForRegexpMatch = false;
+    const parameterType = new ParameterType(
+        name,
+        regexp,
+        null,
+        transformer,
+        useForSnippets,
+        preferForRegexpMatch,
+    )
+    cucumberExpParamsRegistry.defineParameterType(parameterType);
+}
+
 module.exports = {
     register: register,
-    find : find
+    find : find,
+    defineParameterType
 }
