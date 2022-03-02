@@ -1,4 +1,4 @@
-const { Color } = require("../types");
+const { Color } = require("../support/types");
 
 step('I buy {int} ball(s) in ₹{int}', () => {
     //do nothing
