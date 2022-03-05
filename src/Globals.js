@@ -43,5 +43,6 @@ module.exports = {
     then : registerStepDef, 
     when : registerStepDef, 
     given : registerStepDef, 
-    step : registerStepDef
+    step : registerStepDef,
+    defineParameterType: Registry.defineParameterType
 }

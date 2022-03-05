@@ -1,4 +1,4 @@
-import { defineParameterType } from 'cytorus/src/Registry'
+import { defineParameterType } from 'cytorus/src/Globals'
 import { Color } from './types'
 
 defineParameterType({

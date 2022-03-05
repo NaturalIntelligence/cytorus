@@ -12,3 +12,13 @@ export function then(  stepExpression: stepExpression,  stepDefinition:  stepDef
 export function and(  stepExpression: stepExpression,  stepDefinition:  stepDefinition): void;
 export function but(  stepExpression: stepExpression,  stepDefinition:  stepDefinition): void;
 export function step(  stepExpression: stepExpression,  stepDefinition:  stepDefinition): void;
+
+export interface IParameterTypeDefinition<T> {
+    name: string
+    regexp: readonly RegExp[] | readonly string[] | RegExp | string
+    transformer: (...match: string[]) => T
+    useForSnippets?: boolean
+    preferForRegexpMatch?: boolean
+}
+
+export function defineParameterType(options: IParameterTypeDefinition<any>): void;
