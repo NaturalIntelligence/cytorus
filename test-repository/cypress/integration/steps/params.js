@@ -1,4 +1,5 @@
 const { Color } = require("../support/types");
+const {cliLog } = require("cytorus/Tasks")
 
 step('I buy {int} ball(s) in ₹{int}', () => {
     //do nothing
@@ -32,4 +33,14 @@ step('I use custom paramters to select values', () => {
 
 step('I can use the selected data later', () => {
     // do nothing
+})
+
+Then('I call at {mob}', (mob) => {
+    cy.log(mob);
+    cliLog(mob);
+})
+
+Then('it displayes {string} name on the screen', (name) => {
+    cy.log(name)
+    cliLog(name);
 })

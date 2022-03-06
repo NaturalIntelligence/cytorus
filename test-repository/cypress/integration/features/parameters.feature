@@ -18,3 +18,18 @@ Scenario: custom paramters
     Given I have red balls
     And I use custom paramters to select values
     Then I can use the selected data later
+
+@custom-mob
+Scenario: call local number
+    Given I call at 7894561230
+    Then it displayes "XYZ" name on the screen
+
+@custom-mob
+Scenario: call STD number (other state)
+    Given I call at 07894561230
+    Then it displayes "XYZ" name on the screen
+
+@custom-mob
+Scenario: call ISD number
+    Given I call at +917894561230
+    Then it displayes "XYZ" name on the screen

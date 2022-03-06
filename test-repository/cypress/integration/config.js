@@ -1,0 +1,1 @@
+// Cypress.Commands.overwrite('log',  (s,msg) => cy.task('log', msg));
