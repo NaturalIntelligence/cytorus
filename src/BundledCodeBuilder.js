@@ -21,11 +21,22 @@ function bundledCode(serializedFeaturePath, isCyDashboard, cliOptions){
     // }
     //Run tests
     codeAsStr += `runTest(featureObj, ${cliOptions.routeCount});`;
+    
+    // normalize the arguments of CommonJS require() if the OS has '\' as path separator
+    codeAsStr = normalizeRequireFilePaths(codeAsStr)
+    
     return codeAsStr;
 }
 
 function requireInBrowser(moduleName){
     return "require('" + path.join( __dirname, moduleName) +"');"
+}
+
+function normalizeRequireFilePaths(fileContent) {
+    // if an OS is used that has '\' instead of '/' as path separator, then we need to
+    // replace the '\' with a '/' for the arguments of CommonJS require()
+    const backslashInRequirePathPattern = /(?<=require\(\'.*)\\(?=.*\'\))/g
+    return fileContent.replaceAll(backslashInRequirePathPattern, '/');
 }
 
 module.exports = bundledCode;
