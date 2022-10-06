@@ -23,7 +23,9 @@ function bundledCode(serializedFeaturePath, isCyDashboard, cliOptions){
     codeAsStr += `runTest(featureObj, ${cliOptions.routeCount});`;
     
     // normalize the arguments of CommonJS require() if the OS has '\' as path separator
-    codeAsStr = normalizeRequireFilePaths(codeAsStr)
+    if (path.sep === "\\") {
+        codeAsStr = normalizeRequireFilePaths(codeAsStr)
+    }
     
     return codeAsStr;
 }
