@@ -10,12 +10,12 @@ Cypress File Preprocessor to run Gherkin based tests with some mind blowing feat
 * Run tests from their **position** in test file(s).
 * Run tests for a **User Story**.
 * Write your own **custom reporting** tools/
-* More redable/understanble **datatables**.
-* **Parallel runs**(experimental)
+* More readable/understandable **data tables**.
+* **Parallel runs** (experimental)
 
-## Sample Feature file
+## Feature file
 
-```feature
+```gherkin
 #!
 Feature: I can order a Pizza
 
@@ -60,24 +60,16 @@ Scenario: Make an order from home page
     #Validate the cart from the order detail in scenario context
     Then I can see the cart with selected items
 ```
-## Some useful commands
+
+## User Guide
+
+For further documentation see [docs](./docs/1.GettingStarted.md)
+
+## Some Useful Commands
 
 ```bash
-$ npx cytorus run --story "US004"
-$ npx cytorus run --tags "not @wip"
-$ npx cytorus run --from "product page"
-$ npx cytorus run --not-via "home page"
+npx cytorus run --story "US004"
+npx cytorus run --tags "not @wip"
+npx cytorus run --from "product page"
+npx cytorus run --not-via "home page"
 ```
-
-## Documentation
-
-1. [Getting Started with application setup](./docs/1.GettingStarted.md)
-2. [Writing Feature File and step definitions](./docs/2.WritingTests.md)
-3. [Scenario Context](./docs/3.Context.md)
-4. [Basic Commands to run the tests](./docs/4.BasicCommands.md)
-5. [Test selection to run particular tests](./docs/5.RunStrategy.md)
-6. [Project configuration to create test strategy and more](./docs/6.ProjectConfiguration.md)
-7. [Threshold Strategies to keep the builds green ](./docs/7.Threshold.md)
-8. [Run tests in parallel (experimental) ](./docs/8.ParallelRun.md)
-9. [Reports ](./docs/9.Reports.md)
-10. [Miscellaneous ](./docs/10.Miscellaneous.md)
