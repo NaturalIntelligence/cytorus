@@ -63,7 +63,16 @@ Scenario: Make an order from home page
 
 ## User Guide
 
-For further documentation see [docs](./docs/1.GettingStarted.md)
+1. [Getting Started with application setup](./docs/1.GettingStarted.md)
+2. [Writing Feature File and step definitions](./docs/2.WritingTests.md)
+3. [Scenario Context](./docs/3.Context.md)
+4. [Basic Commands to run the tests](./docs/4.BasicCommands.md)
+5. [Test selection to run particular tests](./docs/5.RunStrategy.md)
+6. [Project configuration to create test strategy and more](./docs/6.ProjectConfiguration.md)
+7. [Threshold Strategies to keep the builds green](./docs/7.Threshold.md)
+8. [Run tests in parallel (experimental)](./docs/8.ParallelRun.md)
+9. [Reports](./docs/9.Reports.md)
+10. [Miscellaneous](./docs/10.Miscellaneous.md)
 
 ## Some Useful Commands
 
