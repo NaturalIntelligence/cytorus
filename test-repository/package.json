@@ -16,7 +16,7 @@
   "license": "ISC",
   "dependencies": {
     "cy2": "^1.2.1",
-    "cypress": "^8.3.1",
+    "cypress": "^13.0.0",
     "cytorus": "file:../cytorus-0.2.12.tgz",
     "cytorus-reporter": "^1.2.1"
   },
