@@ -1,5 +1,7 @@
 # Cytorus
 
+<big>Deprecated: As this application relies on Cypress framework, it defeats the whole purpose of solving a basic problem of functional teating. Hence deprecated until some core application is developed.</big>
+
 Cypress File Preprocessor to run Gherkin based tests with some mind blowing features.
 
 ## Features
